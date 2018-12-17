@@ -5,44 +5,44 @@ import { containsNode } from 'mobiledoc-kit/utils/dom-utils';
 
 const MUTATION = {
   NODES_CHANGED: 'childList',
-  CHARACTER_DATA: 'characterData'
+  CHARACTER_DATA: 'characterData',
 };
 
 export default class MutationHandler {
-  constructor(editor) {
-    this.editor     = editor;
-    this.logger     = editor.loggerFor('mutation-handler');
+  constructor (editor) {
+    this.editor = editor;
+    this.logger = editor.loggerFor('mutation-handler');
     this.renderTree = null;
     this._isObserving = false;
 
-    this._observer = new MutationObserver((mutations) => {
+    this._observer = new window.MutationObserver((mutations) => {
       this._handleMutations(mutations);
     });
   }
 
-  init() {
+  init () {
     this.startObserving();
   }
 
-  destroy() {
+  destroy () {
     this.stopObserving();
     this._observer = null;
   }
 
-  suspendObservation(callback) {
+  suspendObservation (callback) {
     this.stopObserving();
     callback();
     this.startObserving();
   }
 
-  stopObserving() {
+  stopObserving () {
     if (this._isObserving) {
       this._isObserving = false;
       this._observer.disconnect();
     }
   }
 
-  startObserving() {
+  startObserving () {
     if (!this._isObserving) {
       let { editor } = this;
       assert('Cannot observe un-rendered editor', editor.hasRendered);
@@ -53,16 +53,16 @@ export default class MutationHandler {
       this._observer.observe(editor.element, {
         characterData: true,
         childList: true,
-        subtree: true
+        subtree: true,
       });
     }
   }
 
-  reparsePost() {
+  reparsePost () {
     this.editor._reparsePost();
   }
 
-  reparseSections(sections) {
+  reparseSections (sections) {
     this.editor._reparseSections(sections);
   }
 
@@ -79,7 +79,7 @@ export default class MutationHandler {
    *   *  find its section, add to sections-to-reparse
    *   *  if no section, reparse all (and break)
    */
-  _handleMutations(mutations) {
+  _handleMutations (mutations) {
     let reparsePost = false;
     let sections = new Set();
 
@@ -90,7 +90,7 @@ export default class MutationHandler {
 
       let nodes = this._findTargetNodes(mutations[i]);
 
-      for (let j=0; j < nodes.length; j++) {
+      for (let j = 0; j < nodes.length; j++) {
         let node = nodes[j];
         let renderNode = this._findRenderNodeFromNode(node);
         if (renderNode) {
@@ -118,7 +118,7 @@ export default class MutationHandler {
     }
   }
 
-  _findTargetNodes(mutation) {
+  _findTargetNodes (mutation) {
     let nodes = [];
 
     switch (mutation.type) {
@@ -138,19 +138,18 @@ export default class MutationHandler {
     return attachedNodes;
   }
 
-  _findSectionRenderNodeFromNode(node) {
+  _findSectionRenderNodeFromNode (node) {
     return this.renderTree.findRenderNodeFromElement(node, (rn) => {
       return rn.postNode.isSection;
     });
   }
 
-  _findRenderNodeFromNode(node) {
+  _findRenderNodeFromNode (node) {
     return this.renderTree.findRenderNodeFromElement(node);
   }
 
-  _findSectionFromRenderNode(renderNode) {
+  _findSectionFromRenderNode (renderNode) {
     let sectionRenderNode = this._findSectionRenderNodeFromNode(renderNode.element);
     return sectionRenderNode && sectionRenderNode.postNode;
   }
-
 }

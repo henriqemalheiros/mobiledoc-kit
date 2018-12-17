@@ -7,13 +7,13 @@ export const MIME_TEXT_PLAIN = 'text/plain';
 export const MIME_TEXT_HTML = 'text/html';
 export const NONSTANDARD_IE_TEXT_TYPE = 'Text';
 
-const MOBILEDOC_REGEX = new RegExp(/data\-mobiledoc='(.*?)'>/);
+const MOBILEDOC_REGEX = new RegExp(/data-mobiledoc='(.*?)'>/);
 
 /**
  * @return {Post}
  * @private
  */
-function parsePostFromHTML(html, builder, plugins) {
+function parsePostFromHTML (html, builder, plugins) {
   let post;
 
   if (MOBILEDOC_REGEX.test(html)) {
@@ -21,7 +21,7 @@ function parsePostFromHTML(html, builder, plugins) {
     let mobiledoc = JSON.parse(mobiledocString);
     post = mobiledocParsers.parse(builder, mobiledoc);
   } else {
-    post = new HTMLParser(builder, {plugins}).parse(html);
+    post = new HTMLParser(builder, { plugins }).parse(html);
   }
 
   return post;
@@ -31,8 +31,8 @@ function parsePostFromHTML(html, builder, plugins) {
  * @return {Post}
  * @private
  */
-function parsePostFromText(text, builder, plugins) {
-  let parser = new TextParser(builder, {plugins});
+function parsePostFromText (text, builder, plugins) {
+  let parser = new TextParser(builder, { plugins });
   let post = parser.parse(text);
   return post;
 }
@@ -41,8 +41,8 @@ function parsePostFromText(text, builder, plugins) {
  * @return {{html: String, text: String}}
  * @private
  */
-export function getContentFromPasteEvent(event, window) {
-  let html = '', text = '';
+export function getContentFromPasteEvent (event, window) {
+  let html = ''; let text = '';
 
   let { clipboardData } = event;
 
@@ -63,8 +63,8 @@ export function getContentFromPasteEvent(event, window) {
  * @return {{html: String, text: String}}
  * @private
  */
-function getContentFromDropEvent(event, logger) {
-  let html = '', text = '';
+function getContentFromDropEvent (event, logger) {
+  let html = ''; let text = '';
 
   try {
     html = event.dataTransfer.getData(MIME_TEXT_HTML);
@@ -87,7 +87,7 @@ function getContentFromDropEvent(event, logger) {
  * @param {Window}
  * @private
  */
-export function setClipboardData(event, {mobiledoc, html, text}, window) {
+export function setClipboardData (event, { mobiledoc, html, text }, window) {
   if (mobiledoc && html) {
     html = `<div data-mobiledoc='${JSON.stringify(mobiledoc)}'>${html}</div>`;
   }
@@ -112,7 +112,7 @@ export function setClipboardData(event, {mobiledoc, html, text}, window) {
  * @return {Post}
  * @private
  */
-export function parsePostFromPaste(pasteEvent, {builder, _parserPlugins: plugins}, {targetFormat}={targetFormat:'html'}) {
+export function parsePostFromPaste (pasteEvent, { builder, _parserPlugins: plugins }, { targetFormat } = { targetFormat: 'html' }) {
   let { html, text } = getContentFromPasteEvent(pasteEvent, window);
 
   if (targetFormat === 'html' && html && html.length) {
@@ -129,7 +129,7 @@ export function parsePostFromPaste(pasteEvent, {builder, _parserPlugins: plugins
  * @return {Post}
  * @private
  */
-export function parsePostFromDrop(dropEvent, editor, {logger}={}) {
+export function parsePostFromDrop (dropEvent, editor, { logger } = {}) {
   let { builder, _parserPlugins: plugins } = editor;
   let { html, text } = getContentFromDropEvent(dropEvent, logger);
 

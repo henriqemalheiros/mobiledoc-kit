@@ -4,26 +4,26 @@ import deprecate from 'mobiledoc-kit/utils/deprecate';
 import { ENTER } from 'mobiledoc-kit/utils/characters';
 
 class TextInputHandler {
-  constructor(editor) {
+  constructor (editor) {
     this.editor = editor;
     this._handlers = [];
   }
 
-  register(handler) {
+  register (handler) {
     assert(`Input Handler is not valid`, this._validateHandler(handler));
     this._handlers.push(handler);
   }
 
-  unregister(name) {
+  unregister (name) {
     let handlers = this._handlers;
-    for (let i=0; i<handlers.length; i++) {
+    for (let i = 0; i < handlers.length; i++) {
       if (handlers[i].name === name) {
         handlers.splice(i, 1);
       }
     }
   }
 
-  handle(string) {
+  handle (string) {
     let { editor } = this;
 
     editor.insertText(string);
@@ -35,7 +35,7 @@ class TextInputHandler {
     }
   }
 
-  handleNewLine() {
+  handleNewLine () {
     let { editor } = this;
 
     let matchedHandler = this._findHandler(ENTER);
@@ -45,13 +45,13 @@ class TextInputHandler {
     }
   }
 
-  _findHandler(string = "") {
+  _findHandler (string = '') {
     let { editor: { range: { head, head: { section } } } } = this;
     let preText = section.textUntil(head) + string;
 
-    for (let i=0; i < this._handlers.length; i++) {
+    for (let i = 0; i < this._handlers.length; i++) {
       let handler = this._handlers[i];
-      let {text, match} = handler;
+      let { text, match } = handler;
 
       if (text && endsWith(preText, text)) {
         return [handler, [text]];
@@ -61,14 +61,14 @@ class TextInputHandler {
     }
   }
 
-  _validateHandler(handler) {
+  _validateHandler (handler) {
     deprecate('Registered input handlers require a "name" property so that they can be unregistered', !!handler.name);
-    return !!handler.run &&                        // has `run`
-           (!!handler.text || !!handler.match) &&  // and `text` or `match`
-           !(!!handler.text && !!handler.match);   // not both `text` and `match`
+    return !!handler.run && // has `run`
+           (!!handler.text || !!handler.match) && // and `text` or `match`
+           !(!!handler.text && !!handler.match); // not both `text` and `match`
   }
 
-  destroy() {
+  destroy () {
     this._handlers = [];
   }
 }

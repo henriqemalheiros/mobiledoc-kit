@@ -5,10 +5,10 @@ var errorProps = [
   'message',
   'name',
   'number',
-  'stack'
+  'stack',
 ];
 
-function MobiledocError() {
+function MobiledocError () {
   let tmp = Error.apply(this, arguments);
 
   if (Error.captureStackTrace) {

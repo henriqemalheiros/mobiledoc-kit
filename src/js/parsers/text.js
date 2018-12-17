@@ -1,10 +1,10 @@
 import assert from 'mobiledoc-kit/utils/assert';
 import {
   MARKUP_SECTION_TYPE,
-  LIST_SECTION_TYPE
+  LIST_SECTION_TYPE,
 } from 'mobiledoc-kit/models/types';
 import {
-  DEFAULT_TAG_NAME as DEFAULT_MARKUP_SECTION_TAG_NAME
+  DEFAULT_TAG_NAME as DEFAULT_MARKUP_SECTION_TAG_NAME,
 } from 'mobiledoc-kit/models/markup-section';
 
 const UL_LI_REGEX = /^\* (.*)$/;
@@ -12,17 +12,17 @@ const OL_LI_REGEX = /^\d\.? (.*)$/;
 const CR = '\r';
 const LF = '\n';
 const CR_REGEX = new RegExp(CR, 'g');
-const CR_LF_REGEX = new RegExp(CR+LF, 'g');
+const CR_LF_REGEX = new RegExp(CR + LF, 'g');
 
 export const SECTION_BREAK = LF;
 
-function normalizeLineEndings(text) {
+function normalizeLineEndings (text) {
   return text.replace(CR_LF_REGEX, LF)
-             .replace(CR_REGEX, LF);
+    .replace(CR_REGEX, LF);
 }
 
 export default class TextParser {
-  constructor(builder, options) {
+  constructor (builder, options) {
     this.builder = builder;
     this.options = options;
 
@@ -34,7 +34,7 @@ export default class TextParser {
    * @param {String} text to parse
    * @return {Post} a post abstract
    */
-  parse(text) {
+  parse (text) {
     text = normalizeLineEndings(text);
     text.split(SECTION_BREAK).forEach(text => {
       let section = this._parseSection(text);
@@ -44,10 +44,12 @@ export default class TextParser {
     return this.post;
   }
 
-  _parseSection(text) {
-    let tagName = DEFAULT_MARKUP_SECTION_TAG_NAME,
-        type    = MARKUP_SECTION_TYPE,
-        section;
+  _parseSection (text) {
+    let tagName = DEFAULT_MARKUP_SECTION_TAG_NAME;
+
+    let type = MARKUP_SECTION_TYPE;
+
+    let section;
 
     if (UL_LI_REGEX.test(text)) {
       tagName = 'ul';
@@ -78,7 +80,7 @@ export default class TextParser {
     return section;
   }
 
-  _appendSection(section) {
+  _appendSection (section) {
     let isSameListSection =
       section.isListSection &&
       this.prevSection && this.prevSection.isListSection &&

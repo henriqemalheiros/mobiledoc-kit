@@ -5,7 +5,7 @@ import { DIRECTION } from '../utils/key';
 import mobiledocParsers from '../parsers/mobiledoc';
 import HTMLParser from '../parsers/html';
 import DOMParser from '../parsers/dom';
-import Renderer  from 'mobiledoc-kit/renderers/editor-dom';
+import Renderer from 'mobiledoc-kit/renderers/editor-dom';
 import RenderTree from 'mobiledoc-kit/models/render-tree';
 import mobiledocRenderers from '../renderers/mobiledoc';
 import { MOBILEDOC_VERSION } from 'mobiledoc-kit/renderers/mobiledoc';
@@ -20,7 +20,7 @@ import Environment from '../utils/environment';
 import PostNodeBuilder from '../models/post-node-builder';
 import { DEFAULT_TEXT_INPUT_HANDLERS } from './text-input-handlers';
 import {
-  DEFAULT_KEY_COMMANDS, buildKeyCommand, findKeyCommands, validateKeyCommand
+  DEFAULT_KEY_COMMANDS, buildKeyCommand, findKeyCommands, validateKeyCommand,
 } from './key-commands';
 import { CARD_MODES } from '../models/card';
 import assert from '../utils/assert';
@@ -49,14 +49,14 @@ const defaults = {
   cards: [],
   atoms: [],
   cardOptions: {},
-  unknownCardHandler: ({env}) => {
+  unknownCardHandler: ({ env }) => {
     throw new MobiledocError(`Unknown card encountered: ${env.name}`);
   },
-  unknownAtomHandler: ({env}) => {
+  unknownAtomHandler: ({ env }) => {
     throw new MobiledocError(`Unknown atom encountered: ${env.name}`);
   },
   mobiledoc: null,
-  html: null
+  html: null,
 };
 
 const CALLBACK_QUEUES = {
@@ -69,7 +69,7 @@ const CALLBACK_QUEUES = {
   CURSOR_DID_CHANGE: 'cursorDidChange',
   DID_REPARSE: 'didReparse',
   POST_DID_CHANGE: 'postDidChange',
-  INPUT_MODE_DID_CHANGE: 'inputModeDidChange'
+  INPUT_MODE_DID_CHANGE: 'inputModeDidChange',
 };
 
 /**
@@ -120,9 +120,9 @@ class Editor {
    * @return {Editor}
    * @public
    */
-  constructor(options={}) {
+  constructor (options = {}) {
     assert('editor create accepts an options object. For legacy usage passing an element for the first argument, consider the `html` option for loading DOM or HTML posts. For other cases call `editor.render(domNode)` after editor creation',
-          (options && !options.nodeType));
+      (options && !options.nodeType));
     this._views = [];
     this.isEditable = true;
     this._parserPlugins = options.parserPlugins || [];
@@ -134,8 +134,8 @@ class Editor {
     DEFAULT_KEY_COMMANDS.forEach(kc => this.registerKeyCommand(kc));
 
     this._logManager = new LogManager();
-    this._parser   = new DOMParser(this.builder);
-    let {cards, atoms, unknownCardHandler, unknownAtomHandler, cardOptions} = this;
+    this._parser = new DOMParser(this.builder);
+    let { cards, atoms, unknownCardHandler, unknownAtomHandler, cardOptions } = this;
     this._renderer = new Renderer(this, cards, atoms, unknownCardHandler, unknownAtomHandler, cardOptions);
 
     this.post = this.loadPost();
@@ -158,7 +158,7 @@ class Editor {
    * @param {Array} [logTypes=[]] If present, only the given log types will be logged.
    * @public
    */
-  enableLogging(logTypes=[]) {
+  enableLogging (logTypes = []) {
     if (logTypes.length === 0) {
       this._logManager.enableAll();
     } else {
@@ -170,14 +170,14 @@ class Editor {
    * Disable all logging
    * @public
    */
-  disableLogging() {
+  disableLogging () {
     this._logManager.disable();
   }
 
   /**
    * @private
    */
-  loggerFor(type) {
+  loggerFor (type) {
     return this._logManager.for(type);
   }
 
@@ -185,18 +185,18 @@ class Editor {
    * The editor's instance of a post node builder.
    * @type {PostNodeBuilder}
    */
-  get builder() {
+  get builder () {
     if (!this._builder) { this._builder = new PostNodeBuilder(); }
     return this._builder;
   }
 
-  loadPost() {
-    let {mobiledoc, html} = this;
+  loadPost () {
+    let { mobiledoc, html } = this;
     if (mobiledoc) {
       return mobiledocParsers.parse(this.builder, mobiledoc);
     } else if (html) {
       if (typeof html === 'string') {
-        let options = {plugins: this._parserPlugins};
+        let options = { plugins: this._parserPlugins };
         return new HTMLParser(this.builder, options).parse(this.html);
       } else {
         let dom = html;
@@ -207,13 +207,13 @@ class Editor {
     }
   }
 
-  rerender() {
+  rerender () {
     let postRenderNode = this.post.renderNode;
 
     // if we haven't rendered this post's renderNode before, mark it dirty
     if (!postRenderNode.element) {
       assert('Must call `render` before `rerender` can be called',
-             this.hasRendered);
+        this.hasRendered);
       postRenderNode.element = this.element;
       postRenderNode.markDirty();
     }
@@ -230,10 +230,10 @@ class Editor {
    *        Its contents will be replaced by the editor's rendered post.
    * @public
    */
-  render(element) {
+  render (element) {
     assert('Cannot render an editor twice. Use `rerender` to update the ' +
            'rendering of an existing editor instance.',
-           !this.hasRendered);
+    !this.hasRendered);
 
     element.spellcheck = this.spellcheck;
 
@@ -269,14 +269,14 @@ class Editor {
     }
   }
 
-  _addTooltip() {
+  _addTooltip () {
     this.addView(new Tooltip({
       rootElement: this.element,
-      showForTag: 'a'
+      showForTag: 'a',
     }));
   }
 
-  get keyCommands() {
+  get keyCommands () {
     if (!this._keyCommands) { this._keyCommands = []; }
     return this._keyCommands;
   }
@@ -288,7 +288,7 @@ class Editor {
    * is invoked
    * @public
    */
-  registerKeyCommand(rawKeyCommand) {
+  registerKeyCommand (rawKeyCommand) {
     const keyCommand = buildKeyCommand(rawKeyCommand);
     assert('Key Command is not valid', validateKeyCommand(keyCommand));
     this.keyCommands.unshift(keyCommand);
@@ -298,12 +298,12 @@ class Editor {
    * @param {String} name If the keyCommand event has a name attribute it can be removed.
    * @public
    */
-  unregisterKeyCommands(name) {
-    for(let i = this.keyCommands.length-1; i > -1; i--) {
+  unregisterKeyCommands (name) {
+    for (let i = this.keyCommands.length - 1; i > -1; i--) {
       let keyCommand = this.keyCommands[i];
 
-      if(keyCommand.name === name) {
-        this.keyCommands.splice(i,1);
+      if (keyCommand.name === name) {
+        this.keyCommands.splice(i, 1);
       }
     }
   }
@@ -313,9 +313,9 @@ class Editor {
    * cursor in the new position.
    * @public
    */
-  deleteAtPosition(position, direction, {unit}) {
+  deleteAtPosition (position, direction, { unit }) {
     this.run(postEditor => {
-      let nextPosition = postEditor.deleteAtPosition(position, direction, {unit});
+      let nextPosition = postEditor.deleteAtPosition(position, direction, { unit });
       postEditor.setRange(nextPosition);
     });
   }
@@ -326,7 +326,7 @@ class Editor {
    * @param {Range} range
    * @public
    */
-  deleteRange(range) {
+  deleteRange (range) {
     this.run(postEditor => {
       let nextPosition = postEditor.deleteRange(range);
       postEditor.setRange(nextPosition);
@@ -336,19 +336,19 @@ class Editor {
   /**
    * @private
    */
-  performDelete({direction, unit}={direction: DIRECTION.BACKWARD, unit: 'char'}) {
+  performDelete ({ direction, unit } = { direction: DIRECTION.BACKWARD, unit: 'char' }) {
     let { range } = this;
 
     this.runCallbacks(CALLBACK_QUEUES.WILL_DELETE, [range, direction, unit]);
     if (range.isCollapsed) {
-      this.deleteAtPosition(range.head, direction, {unit});
+      this.deleteAtPosition(range.head, direction, { unit });
     } else {
       this.deleteRange(range);
     }
     this.runCallbacks(CALLBACK_QUEUES.DID_DELETE, [range, direction, unit]);
   }
 
-  handleNewline(event) {
+  handleNewline (event) {
     if (!this.hasCursor()) { return; }
 
     event.preventDefault();
@@ -357,7 +357,7 @@ class Editor {
     this.run(postEditor => {
       let cursorSection;
       if (!range.isCollapsed) {
-        let nextPosition  = postEditor.deleteRange(range);
+        let nextPosition = postEditor.deleteRange(range);
         cursorSection = nextPosition.section;
         if (cursorSection && cursorSection.isBlank) {
           postEditor.setRange(cursorSection.headPosition());
@@ -367,7 +367,7 @@ class Editor {
 
       // Above logic might delete redundant range, so callback must run after it.
       let defaultPrevented = false;
-      const event = { preventDefault() { defaultPrevented = true; } };
+      const event = { preventDefault () { defaultPrevented = true; } };
       this.runCallbacks(CALLBACK_QUEUES.WILL_HANDLE_NEWLINE, [event]);
       if (defaultPrevented) { return; }
 
@@ -381,7 +381,7 @@ class Editor {
    * callbacks.
    * @private
    */
-  _postDidChange() {
+  _postDidChange () {
     this.runCallbacks(CALLBACK_QUEUES.POST_DID_CHANGE);
   }
 
@@ -391,14 +391,14 @@ class Editor {
    * surface encompassing the range.
    * @param {Range|Position} range
    */
-  selectRange(range) {
+  selectRange (range) {
     range = toRange(range);
 
     this.cursor.selectRange(range);
     this.range = range;
   }
 
-  get cursor() {
+  get cursor () {
     return new Cursor(this);
   }
 
@@ -406,11 +406,11 @@ class Editor {
    * Return the current range for the editor (may be cached).
    * @return {Range}
    */
-  get range() {
+  get range () {
     return this._editState.range;
   }
 
-  set range(newRange) {
+  set range (newRange) {
     this._editState.updateRange(newRange);
 
     if (this._editState.rangeDidChange()) {
@@ -422,15 +422,15 @@ class Editor {
     }
   }
 
-  _readRangeFromDOM() {
+  _readRangeFromDOM () {
     this.range = this.cursor.offsets;
   }
 
-  setPlaceholder(placeholder) {
+  setPlaceholder (placeholder) {
     setData(this.element, 'placeholder', placeholder);
   }
 
-  _reparsePost() {
+  _reparsePost () {
     let post = this._parser.parse(this.element);
     this.run(postEditor => {
       postEditor.removeAllSections();
@@ -442,7 +442,7 @@ class Editor {
     this._postDidChange();
   }
 
-  _reparseSections(sections=[]) {
+  _reparseSections (sections = []) {
     let currentRange;
     sections.forEach(section => {
       this._parser.reparseSection(section, this._renderTree);
@@ -471,7 +471,7 @@ class Editor {
 
   // FIXME this should be able to be removed now -- if any sections are detached,
   // it's due to a bug in the code.
-  _removeDetachedSections() {
+  _removeDetachedSections () {
     forEach(
       filter(this.post.sections, s => !s.renderNode.isAttached()),
       s => s.renderNode.scheduleForRemoval()
@@ -482,16 +482,16 @@ class Editor {
    * The sections from the cursor's selection start to the selection end
    * @type {Section[]}
    */
-  get activeSections() {
+  get activeSections () {
     return this._editState.activeSections;
   }
 
-  get activeSection() {
+  get activeSection () {
     const { activeSections } = this;
     return activeSections[activeSections.length - 1];
   }
 
-  detectMarkupInRange(range, markupTagName) {
+  detectMarkupInRange (range, markupTagName) {
     let markups = this.post.markupsInRange(range);
     return detect(markups, markup => {
       return markup.hasTag(markupTagName);
@@ -502,7 +502,7 @@ class Editor {
    * @type {Markup[]}
    * @public
    */
-  get activeMarkups() {
+  get activeMarkups () {
     return this._editState.activeMarkups;
   }
 
@@ -510,7 +510,7 @@ class Editor {
    * @param {Markup|String} markup A markup instance, or a string (e.g. "b")
    * @return {boolean}
    */
-  hasActiveMarkup(markup) {
+  hasActiveMarkup (markup) {
     let matchesFn;
     if (typeof markup === 'string') {
       let tagName = normalizeTagName(markup);
@@ -527,8 +527,8 @@ class Editor {
    * @return {Mobiledoc} Serialized mobiledoc
    * @public
    */
-  serialize(version=MOBILEDOC_VERSION) {
-    return this.serializePost(this.post, 'mobiledoc', {version});
+  serialize (version = MOBILEDOC_VERSION) {
+    return this.serializePost(this.post, 'mobiledoc', { version });
   }
 
   /**
@@ -541,7 +541,7 @@ class Editor {
    * @return {Object|String} The editor's post, serialized to {format}
    * @public
    */
-  serializeTo(format) {
+  serializeTo (format) {
     let post = this.post;
     return this.serializePost(post, format);
   }
@@ -554,10 +554,10 @@ class Editor {
    * @return {Object|String}
    * @private
    */
-  serializePost(post, format, options={}) {
+  serializePost (post, format, options = {}) {
     const validFormats = ['mobiledoc', 'html', 'text'];
     assert(`Unrecognized serialization format ${format}`,
-           contains(validFormats, format));
+      contains(validFormats, format));
 
     if (format === 'mobiledoc') {
       let version = options.version || MOBILEDOC_VERSION;
@@ -588,11 +588,11 @@ class Editor {
     }
   }
 
-  addView(view) {
+  addView (view) {
     this._views.push(view);
   }
 
-  removeAllViews() {
+  removeAllViews () {
     this._views.forEach((v) => v.destroy());
     this._views = [];
   }
@@ -605,7 +605,7 @@ class Editor {
    * @return {boolean}
    * @public
    */
-  hasCursor() {
+  hasCursor () {
     return this.cursor.hasCursor();
   }
 
@@ -613,7 +613,7 @@ class Editor {
    * Tears down the editor's attached event listeners and views.
    * @public
    */
-  destroy() {
+  destroy () {
     this.isDestroyed = true;
     if (this._hasSelection()) {
       this.cursor.clearSelection();
@@ -634,7 +634,7 @@ class Editor {
    * @see Editor#enableEditing
    * @public
    */
-  disableEditing() {
+  disableEditing () {
     this.isEditable = false;
     if (this.hasRendered) {
       this._eventManager.stop();
@@ -651,7 +651,7 @@ class Editor {
    * @see Editor#disableEditing
    * @public
    */
-  enableEditing() {
+  enableEditing () {
     this.isEditable = true;
     if (this.hasRendered) {
       this._eventManager.start();
@@ -667,7 +667,7 @@ class Editor {
    * @param {CardSection} cardSection
    * @public
    */
-  editCard(cardSection) {
+  editCard (cardSection) {
     this._setCardMode(cardSection, CARD_MODES.EDIT);
   }
 
@@ -679,7 +679,7 @@ class Editor {
    * @return undefined
    * @public
    */
-  displayCard(cardSection) {
+  displayCard (cardSection) {
     this._setCardMode(cardSection, CARD_MODES.DISPLAY);
   }
 
@@ -708,7 +708,7 @@ class Editor {
    * @return {Mixed} The return value of `callback`.
    * @public
    */
-  run(callback) {
+  run (callback) {
     const postEditor = new PostEditor(this);
     postEditor.begin();
     this._editHistory.snapshot();
@@ -729,7 +729,7 @@ class Editor {
    * @param {Function} callback Called with `postEditor` as its argument.
    * @public
    */
-  didUpdatePost(callback) {
+  didUpdatePost (callback) {
     this.addCallback(CALLBACK_QUEUES.DID_UPDATE, callback);
   }
 
@@ -738,7 +738,7 @@ class Editor {
    *        user input or programmatically. Use with {@link Editor#serialize} to
    *        retrieve the post in portable mobiledoc format.
    */
-  postDidChange(callback) {
+  postDidChange (callback) {
     this.addCallback(CALLBACK_QUEUES.POST_DID_CHANGE, callback);
   }
 
@@ -757,7 +757,7 @@ class Editor {
    *                   after the matching text has been inserted.
    * @public
    */
-  onTextInput(inputHandler) {
+  onTextInput (inputHandler) {
     this._eventManager.registerInputHandler(inputHandler);
   }
 
@@ -766,7 +766,7 @@ class Editor {
    *
    * @public
    */
-  unregisterAllTextInputHandlers() {
+  unregisterAllTextInputHandlers () {
     this._eventManager.unregisterAllTextInputHandlers();
   }
 
@@ -776,7 +776,7 @@ class Editor {
    *
    * @public
    */
-  unregisterTextInputHandler(name) {
+  unregisterTextInputHandler (name) {
     this._eventManager.unregisterInputHandler(name);
   }
 
@@ -784,7 +784,7 @@ class Editor {
    * @param {Function} callback Called when the editor's state (active markups or
    * active sections) has changed, either via user input or programmatically
    */
-  inputModeDidChange(callback) {
+  inputModeDidChange (callback) {
     this.addCallback(CALLBACK_QUEUES.INPUT_MODE_DID_CHANGE, callback);
   }
 
@@ -793,7 +793,7 @@ class Editor {
    *        is rendered.
    * @public
    */
-  willRender(callback) {
+  willRender (callback) {
     this.addCallback(CALLBACK_QUEUES.WILL_RENDER, callback);
   }
 
@@ -802,7 +802,7 @@ class Editor {
    *        is rendered.
    * @public
    */
-  didRender(callback) {
+  didRender (callback) {
     this.addCallback(CALLBACK_QUEUES.DID_RENDER, callback);
   }
 
@@ -810,7 +810,7 @@ class Editor {
    * @param {Function} callback This callback will be called before deleting.
    * @public
    */
-  willDelete(callback) {
+  willDelete (callback) {
     this.addCallback(CALLBACK_QUEUES.WILL_DELETE, callback);
   }
 
@@ -818,7 +818,7 @@ class Editor {
    * @param {Function} callback This callback will be called after deleting.
    * @public
    */
-  didDelete(callback) {
+  didDelete (callback) {
     this.addCallback(CALLBACK_QUEUES.DID_DELETE, callback);
   }
 
@@ -826,7 +826,7 @@ class Editor {
    * @param {Function} callback This callback will be called before handling new line.
    * @public
    */
-  willHandleNewline(callback) {
+  willHandleNewline (callback) {
     this.addCallback(CALLBACK_QUEUES.WILL_HANDLE_NEWLINE, callback);
   }
 
@@ -835,21 +835,21 @@ class Editor {
    *        position (or selection) changes.
    * @public
    */
-  cursorDidChange(callback) {
+  cursorDidChange (callback) {
     this.addCallback(CALLBACK_QUEUES.CURSOR_DID_CHANGE, callback);
   }
 
-  _rangeDidChange() {
+  _rangeDidChange () {
     if (this.hasRendered) {
       this.runCallbacks(CALLBACK_QUEUES.CURSOR_DID_CHANGE);
     }
   }
 
-  _inputModeDidChange() {
+  _inputModeDidChange () {
     this.runCallbacks(CALLBACK_QUEUES.INPUT_MODE_DID_CHANGE);
   }
 
-  _insertEmptyMarkupSectionAtCursor() {
+  _insertEmptyMarkupSectionAtCursor () {
     this.run(postEditor => {
       const section = postEditor.builder.createMarkupSection('p');
       postEditor.insertSectionBefore(this.post.sections, section);
@@ -872,7 +872,7 @@ class Editor {
    * modifying markup with the `postEditor` will skip any `beforeToggleMarkup` callbacks.
    * @param {editorBeforeCallback}
    */
-  beforeToggleMarkup(callback) {
+  beforeToggleMarkup (callback) {
     this._beforeHooks.toggleMarkup.push(callback);
   }
 
@@ -890,11 +890,11 @@ class Editor {
    * @public
    * @see PostEditor#toggleMarkup
    */
-  toggleMarkup(markup, attributes={}) {
+  toggleMarkup (markup, attributes = {}) {
     markup = this.builder.createMarkup(markup, attributes);
     let { range } = this;
     let willAdd = !this.detectMarkupInRange(range, markup.tagName);
-    let shouldCancel = this._runBeforeHooks('toggleMarkup', {markup, range, willAdd});
+    let shouldCancel = this._runBeforeHooks('toggleMarkup', { markup, range, willAdd });
     if (shouldCancel) { return; }
 
     if (range.isCollapsed) {
@@ -910,13 +910,13 @@ class Editor {
   }
 
   // If the editor has a selection but is not focused, focus it
-  _ensureFocus() {
+  _ensureFocus () {
     if (this._hasSelection() && !this._hasFocus()) {
       this.focus();
     }
   }
 
-  focus() {
+  focus () {
     this.element.focus();
   }
 
@@ -926,7 +926,7 @@ class Editor {
    * @see #_hasFocus
    * @return {Boolean}
    */
-  _hasSelection() {
+  _hasSelection () {
     let { cursor } = this;
     return this.hasRendered && (cursor._hasCollapsedSelection() || cursor._hasSelection());
   }
@@ -937,7 +937,7 @@ class Editor {
    * @see #_hasSelection
    * @return {Boolean}
    */
-  _hasFocus() {
+  _hasFocus () {
     return document.activeElement === this.element;
   }
 
@@ -949,7 +949,7 @@ class Editor {
    * @public
    * @see PostEditor#toggleSection
    */
-  toggleSection(tagName) {
+  toggleSection (tagName) {
     this.run(postEditor => postEditor.toggleSection(tagName, this.range));
   }
 
@@ -966,9 +966,9 @@ class Editor {
    * @return {Boolean} true when a command was successfully run
    * @private
    */
-  handleKeyCommand(event) {
+  handleKeyCommand (event) {
     const keyCommands = findKeyCommands(this.keyCommands, event);
-    for (let i=0; i<keyCommands.length; i++) {
+    for (let i = 0; i < keyCommands.length; i++) {
       let keyCommand = keyCommands[i];
       if (keyCommand.run(this) !== false) {
         event.preventDefault();
@@ -986,7 +986,7 @@ class Editor {
    * @param {String} text
    * @public
    */
-  insertText(text) {
+  insertText (text) {
     if (!this.hasCursor()) { return; }
     if (this.post.isBlank) {
       this._insertEmptyMarkupSectionAtCursor();
@@ -1012,7 +1012,7 @@ class Editor {
    * @return {Atom} The inserted atom.
    * @public
    */
-  insertAtom(atomName, atomText='', atomPayload={}) {
+  insertAtom (atomName, atomText = '', atomPayload = {}) {
     if (!this.hasCursor()) { return; }
     if (this.post.isBlank) {
       this._insertEmptyMarkupSectionAtCursor();
@@ -1045,7 +1045,7 @@ class Editor {
    * @return {Card} The inserted Card section.
    * @public
    */
-  insertCard(cardName, cardPayload={}, inEditMode=false) {
+  insertCard (cardName, cardPayload = {}, inEditMode = false) {
     if (!this.hasCursor()) { return; }
     if (this.post.isBlank) {
       this._insertEmptyMarkupSectionAtCursor();
@@ -1092,14 +1092,14 @@ class Editor {
    * @param {integer} y y-position in viewport
    * @return {Position|null}
    */
-  positionAtPoint(x, y) {
+  positionAtPoint (x, y) {
     return Position.atPoint(x, y, this);
   }
 
   /**
    * @private
    */
-  _setCardMode(cardSection, mode) {
+  _setCardMode (cardSection, mode) {
     const renderNode = cardSection.renderNode;
     if (renderNode && renderNode.isRendered) {
       const cardNode = renderNode.cardNode;
@@ -1109,19 +1109,19 @@ class Editor {
     }
   }
 
-  triggerEvent(context, eventName, event) {
+  triggerEvent (context, eventName, event) {
     this._eventManager._trigger(context, eventName, event);
   }
 
-  addCallback(...args) {
+  addCallback (...args) {
     this._callbacks.addCallback(...args);
   }
 
-  addCallbackOnce(...args) {
+  addCallbackOnce (...args) {
     this._callbacks.addCallbackOnce(...args);
   }
 
-  runCallbacks(...args) {
+  runCallbacks (...args) {
     if (this.isDestroyed) {
       // TODO warn that callback attempted after editor was destroyed
       return;
@@ -1135,7 +1135,7 @@ class Editor {
    * @return {Boolean} shouldCancel Whether the action in `hookName` should be canceled
    * @private
    */
-  _runBeforeHooks(hookName, ...args) {
+  _runBeforeHooks (hookName, ...args) {
     let hooks = this._beforeHooks[hookName] || [];
     for (let i = 0; i < hooks.length; i++) {
       if (hooks[i](...args) === false) {

@@ -15,7 +15,7 @@ class Range {
    * @return {Range}
    * @private
    */
-  constructor(head, tail=head, direction=null) {
+  constructor (head, tail = head, direction = null) {
     /** @property {Position} head */
     this.head = head;
 
@@ -36,7 +36,7 @@ class Range {
    * @param {Direction} [direction=null]
    * @return {Range}
    */
-  static create(headSection, headOffset, tailSection=headSection, tailOffset=headOffset, direction=null) {
+  static create (headSection, headOffset, tailSection = headSection, tailOffset = headOffset, direction = null) {
     return new Range(
       new Position(headSection, headOffset),
       new Position(tailSection, tailOffset),
@@ -44,7 +44,7 @@ class Range {
     );
   }
 
-  static blankRange() {
+  static blankRange () {
     return new Range(Position.blankPosition(), Position.blankPosition());
   }
 
@@ -58,13 +58,13 @@ class Range {
    * There's no efficient way to determine if a section is within a range, yet.
    * @private
    */
-  trimTo(section) {
+  trimTo (section) {
     const length = section.length;
 
-    let headOffset = section === this.head.section ?
-      Math.min(this.head.offset, length) : 0;
-    let tailOffset = section === this.tail.section ?
-      Math.min(this.tail.offset, length) : length;
+    let headOffset = section === this.head.section
+      ? Math.min(this.head.offset, length) : 0;
+    let tailOffset = section === this.tail.section
+      ? Math.min(this.tail.offset, length) : length;
 
     return Range.create(section, headOffset, section, tailOffset);
   }
@@ -78,7 +78,7 @@ class Range {
    * @return {Range}
    * @public
    */
-  extend(units) {
+  extend (units) {
     assert(`Must pass integer to Range#extend`, typeof units === 'number');
 
     if (units === 0) { return this; }
@@ -105,9 +105,9 @@ class Range {
    * @return {Range}
    * @public
    */
-  move(direction) {
+  move (direction) {
     assert(`Must pass DIRECTION.FORWARD (${DIRECTION.FORWARD}) or DIRECTION.BACKWARD (${DIRECTION.BACKWARD}) to Range#move`,
-           direction === DIRECTION.FORWARD || direction === DIRECTION.BACKWARD);
+      direction === DIRECTION.FORWARD || direction === DIRECTION.BACKWARD);
 
     let { focusedPosition, isCollapsed } = this;
 
@@ -126,13 +126,13 @@ class Range {
    *
    * @public
    */
-  expandByMarker(detectMarker) {
+  expandByMarker (detectMarker) {
     let {
       head,
       tail,
-      direction
+      direction,
     } = this;
-    let {section: headSection} = head;
+    let { section: headSection } = head;
     if (headSection !== tail.section) {
       throw new Error('#expandByMarker does not work across sections. Perhaps you should confirm the range is collapsed');
     }
@@ -152,50 +152,50 @@ class Range {
     return headPosition.toRange(tailPosition, direction);
   }
 
-  _collapse(direction) {
+  _collapse (direction) {
     return new Range(direction === DIRECTION.BACKWARD ? this.head : this.tail);
   }
 
-  get focusedPosition() {
+  get focusedPosition () {
     return this.direction === DIRECTION.BACKWARD ? this.head : this.tail;
   }
 
-  isEqual(other) {
+  isEqual (other) {
     return other &&
       this.head.isEqual(other.head) &&
       this.tail.isEqual(other.tail);
   }
 
-  get isBlank() {
+  get isBlank () {
     return this.head.isBlank && this.tail.isBlank;
   }
 
   // "legacy" APIs
-  get headSection() {
+  get headSection () {
     return this.head.section;
   }
-  get tailSection() {
+  get tailSection () {
     return this.tail.section;
   }
-  get headSectionOffset() {
+  get headSectionOffset () {
     return this.head.offset;
   }
-  get tailSectionOffset() {
+  get tailSectionOffset () {
     return this.tail.offset;
   }
-  get isCollapsed() {
+  get isCollapsed () {
     return this.head.isEqual(this.tail);
   }
-  get headMarker() {
+  get headMarker () {
     return this.head.marker;
   }
-  get tailMarker() {
+  get tailMarker () {
     return this.tail.marker;
   }
-  get headMarkerOffset() {
+  get headMarkerOffset () {
     return this.head.offsetInMarker;
   }
-  get tailMarkerOffset() {
+  get tailMarkerOffset () {
     return this.tail.offsetInMarker;
   }
 }

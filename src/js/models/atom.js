@@ -7,7 +7,7 @@ import assert from '../utils/assert';
 const ATOM_LENGTH = 1;
 
 class Atom extends LinkedItem {
-  constructor(name, value, payload, markups=[]) {
+  constructor (name, value, payload, markups = []) {
     super();
     this.name = name;
     this.value = value;
@@ -22,30 +22,30 @@ class Atom extends LinkedItem {
     markups.forEach(m => this.addMarkup(m));
   }
 
-  clone() {
+  clone () {
     let clonedMarkups = this.markups.slice();
     return this.builder.createAtom(
       this.name, this.value, this.payload, clonedMarkups
     );
   }
 
-  get isBlank() {
+  get isBlank () {
     return false;
   }
 
-  get length() {
+  get length () {
     return ATOM_LENGTH;
   }
 
-  canJoin(/* other */) {
+  canJoin (/* other */) {
     return false;
   }
 
-  textUntil(/* offset */) {
+  textUntil (/* offset */) {
     return '';
   }
 
-  split(offset=0, endOffset=offset) {
+  split (offset = 0, endOffset = offset) {
     let markers = [];
 
     if (endOffset === 0) {
@@ -61,9 +61,9 @@ class Atom extends LinkedItem {
     return markers;
   }
 
-  splitAtOffset(offset) {
+  splitAtOffset (offset) {
     assert('Cannot split a marker at an offset > its length',
-           offset <= this.length);
+      offset <= this.length);
 
     let { builder } = this;
     let clone = this.clone();

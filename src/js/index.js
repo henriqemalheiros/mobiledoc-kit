@@ -13,10 +13,10 @@ const Mobiledoc = {
   Range,
   Position,
   Error,
-  VERSION
+  VERSION,
 };
 
-export function registerGlobal(global) {
+export function registerGlobal (global) {
   global.Mobiledoc = Mobiledoc;
 }
 

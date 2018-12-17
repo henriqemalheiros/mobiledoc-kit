@@ -3,47 +3,47 @@ import assert from './assert';
 const PARENT_PROP = '__parent';
 
 export default class LinkedList {
-  constructor(options) {
+  constructor (options) {
     this.head = null;
     this.tail = null;
     this.length = 0;
 
     if (options) {
-      const {adoptItem, freeItem} = options;
+      const { adoptItem, freeItem } = options;
       this._adoptItem = adoptItem;
       this._freeItem = freeItem;
     }
   }
-  adoptItem(item) {
-    item[PARENT_PROP]= this;
+  adoptItem (item) {
+    item[PARENT_PROP] = this;
     this.length++;
     if (this._adoptItem) { this._adoptItem(item); }
   }
-  freeItem(item) {
+  freeItem (item) {
     item[PARENT_PROP] = null;
     this.length--;
     if (this._freeItem) { this._freeItem(item); }
   }
-  get isEmpty() {
+  get isEmpty () {
     return this.length === 0;
   }
-  prepend(item) {
+  prepend (item) {
     this.insertBefore(item, this.head);
   }
-  append(item) {
+  append (item) {
     this.insertBefore(item, null);
   }
-  insertAfter(item, prevItem) {
+  insertAfter (item, prevItem) {
     let nextItem = prevItem ? prevItem.next : this.head;
     this.insertBefore(item, nextItem);
   }
-  _ensureItemIsNotAlreadyInList(item){
+  _ensureItemIsNotAlreadyInList (item) {
     assert(
       'Cannot insert an item into a list if it is already in a list',
       !item.next && !item.prev && this.head !== item
     );
   }
-  insertBefore(item, nextItem) {
+  insertBefore (item, nextItem) {
     this._ensureItemIsNotInList(item);
     this.adoptItem(item);
 
@@ -59,16 +59,16 @@ export default class LinkedList {
     switch (insertPos) {
       case 'start':
         if (this.head) {
-          item.next      = this.head;
+          item.next = this.head;
           this.head.prev = item;
         }
         this.head = item;
 
         break;
       case 'middle': {
-        let prevItem  = nextItem.prev;
-        item.next     = nextItem;
-        item.prev     = prevItem;
+        let prevItem = nextItem.prev;
+        item.next = nextItem;
+        item.prev = prevItem;
         nextItem.prev = item;
         prevItem.next = item;
 
@@ -89,7 +89,7 @@ export default class LinkedList {
       }
     }
   }
-  remove(item) {
+  remove (item) {
     if (!item[PARENT_PROP]) {
       return;
     }
@@ -112,7 +112,7 @@ export default class LinkedList {
       this.tail = prev;
     }
   }
-  forEach(callback) {
+  forEach (callback) {
     let item = this.head;
     let index = 0;
     while (item) {
@@ -120,12 +120,12 @@ export default class LinkedList {
       item = item.next;
     }
   }
-  map(callback) {
+  map (callback) {
     let result = [];
     this.forEach(i => result.push(callback(i)));
     return result;
   }
-  walk(startItem, endItem, callback) {
+  walk (startItem, endItem, callback) {
     let item = startItem || this.head;
     while (item) {
       callback(item);
@@ -135,17 +135,17 @@ export default class LinkedList {
       item = item.next;
     }
   }
-  readRange(startItem, endItem) {
+  readRange (startItem, endItem) {
     let items = [];
     this.walk(startItem, endItem, (item) => {
       items.push(item);
     });
     return items;
   }
-  toArray() {
+  toArray () {
     return this.readRange();
   }
-  detect(callback, item=this.head, reverse=false) {
+  detect (callback, item = this.head, reverse = false) {
     while (item) {
       if (callback(item)) {
         return item;
@@ -153,10 +153,10 @@ export default class LinkedList {
       item = reverse ? item.prev : item.next;
     }
   }
-  any(callback) {
+  any (callback) {
     return !!this.detect(callback);
   }
-  every(callback) {
+  every (callback) {
     let item = this.head;
     while (item) {
       if (!callback(item)) {
@@ -166,14 +166,14 @@ export default class LinkedList {
     }
     return true;
   }
-  objectAt(targetIndex) {
+  objectAt (targetIndex) {
     let index = -1;
     return this.detect(() => {
       index++;
       return (targetIndex === index);
     });
   }
-  splice(targetItem, removalCount, newItems) {
+  splice (targetItem, removalCount, newItems) {
     let item = targetItem;
     let nextItem = item.next;
     let count = 0;
@@ -187,7 +187,7 @@ export default class LinkedList {
       this.insertBefore(newItem, nextItem);
     });
   }
-  removeBy(conditionFn) {
+  removeBy (conditionFn) {
     let item = this.head;
     while (item) {
       let nextItem = item.next;
@@ -199,12 +199,12 @@ export default class LinkedList {
       item = nextItem;
     }
   }
-  _ensureItemIsNotInList(item) {
+  _ensureItemIsNotInList (item) {
     assert('Cannot insert an item into a list if it is already in a list',
-           !item[PARENT_PROP]);
+      !item[PARENT_PROP]);
   }
-  _ensureItemIsInThisList(item) {
+  _ensureItemIsInThisList (item) {
     assert('Cannot remove item that is in another list',
-           item[PARENT_PROP] === this);
+      item[PARENT_PROP] === this);
   }
 }

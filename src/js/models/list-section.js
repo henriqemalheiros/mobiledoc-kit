@@ -6,13 +6,13 @@ import { normalizeTagName } from '../utils/dom-utils';
 import assert from '../utils/assert';
 
 export const VALID_LIST_SECTION_TAGNAMES = [
-  'ul', 'ol'
+  'ul', 'ol',
 ].map(normalizeTagName);
 
 export const DEFAULT_TAG_NAME = VALID_LIST_SECTION_TAGNAMES[0];
 
 export default class ListSection extends Section {
-  constructor(tagName=DEFAULT_TAG_NAME, items=[]) {
+  constructor (tagName = DEFAULT_TAG_NAME, items = []) {
     super(LIST_SECTION_TYPE);
     this.tagName = tagName;
     this.isListSection = true;
@@ -21,37 +21,39 @@ export default class ListSection extends Section {
     this.items = new LinkedList({
       adoptItem: i => {
         assert(`Cannot insert non-list-item to list (is: ${i.type})`,
-               i.isListItem);
+          i.isListItem);
         i.section = i.parent = this;
       },
-      freeItem:  i => i.section = i.parent = null
+      freeItem: i => {
+        i.section = i.parent = null;
+      },
     });
     this.sections = this.items;
 
     items.forEach(i => this.items.append(i));
   }
 
-  canJoin() {
+  canJoin () {
     return false;
   }
 
-  isValidTagName(normalizedTagName) {
+  isValidTagName (normalizedTagName) {
     return contains(VALID_LIST_SECTION_TAGNAMES, normalizedTagName);
   }
 
-  headPosition() {
+  headPosition () {
     return this.items.head.headPosition();
   }
 
-  tailPosition() {
+  tailPosition () {
     return this.items.tail.tailPosition();
   }
 
-  get isBlank() {
+  get isBlank () {
     return this.items.isEmpty;
   }
 
-  clone() {
+  clone () {
     let newSection = this.builder.createListSection(this.tagName);
     forEach(this.items, i => newSection.items.append(i.clone()));
     return newSection;
@@ -62,7 +64,7 @@ export default class ListSection extends Section {
    * @param {ListSection|Markerable}
    * @return null
    */
-  join(other) {
+  join (other) {
     if (other.isListSection) {
       other.items.forEach(i => this.join(i));
     } else if (other.isMarkerable) {

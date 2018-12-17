@@ -1,29 +1,29 @@
 export default class FixedQueue {
-  constructor(length=0) {
+  constructor (length = 0) {
     this._maxLength = length;
     this._items = [];
   }
 
-  get length() {
+  get length () {
     return this._items.length;
   }
 
-  pop() {
+  pop () {
     return this._items.pop();
   }
 
-  push(item) {
+  push (item) {
     this._items.push(item);
     if (this.length > this._maxLength) {
       this._items.shift();
     }
   }
 
-  clear() {
+  clear () {
     this._items = [];
   }
 
-  toArray() {
+  toArray () {
     return this._items;
   }
 }

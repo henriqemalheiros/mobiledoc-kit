@@ -1,14 +1,16 @@
+/* eslint-disable no-useless-call */
+
 import { forEach } from './array-utils';
 import assert from './assert';
 
-export function visit(visitor, node, opcodes) {
+export function visit (visitor, node, opcodes) {
   const method = node.type;
   assert(`Cannot visit unknown type ${method}`, !!visitor[method]);
   visitor[method](node, opcodes);
 }
 
-export function compile(compiler, opcodes) {
-  for (var i=0, l=opcodes.length; i<l; i++) {
+export function compile (compiler, opcodes) {
+  for (var i = 0, l = opcodes.length; i < l; i++) {
     let [method, ...params] = opcodes[i];
     let length = params.length;
     if (length === 0) {
@@ -23,7 +25,7 @@ export function compile(compiler, opcodes) {
   }
 }
 
-export function visitArray(visitor, nodes, opcodes) {
+export function visitArray (visitor, nodes, opcodes) {
   if (!nodes || nodes.length === 0) {
     return;
   }

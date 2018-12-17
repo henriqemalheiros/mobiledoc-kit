@@ -1,10 +1,9 @@
-import { isTextNode } from 'mobiledoc-kit/utils/dom-utils';
+import { containsNode, isTextNode } from 'mobiledoc-kit/utils/dom-utils';
 import assert from 'mobiledoc-kit/utils/assert';
 import {
   HIGH_SURROGATE_RANGE,
-  LOW_SURROGATE_RANGE
+  LOW_SURROGATE_RANGE,
 } from 'mobiledoc-kit/models/marker';
-import { containsNode } from 'mobiledoc-kit/utils/dom-utils';
 import { findOffsetInNode } from 'mobiledoc-kit/utils/selection-utils';
 import { DIRECTION } from 'mobiledoc-kit/utils/key';
 import Range from './range';
@@ -15,8 +14,8 @@ const { FORWARD, BACKWARD } = DIRECTION;
 // (new XRegExp('\\p{Alphabetic}|[0-9]|_|:')).toString()
 const WORD_CHAR_REGEX = /[A-Za-zªµºÀ-ÖØ-öø-ˁˆ-ˑˠ-ˤˬˮͅͰ-ʹͶͷͺ-ͽͿΆΈ-ΊΌΎ-ΡΣ-ϵϷ-ҁҊ-ԯԱ-Ֆՙա-ևְ-ׇֽֿׁׂׅׄא-תװ-ײؐ-ؚؠ-ٗٙ-ٟٮ-ۓە-ۜۡ-ۭۨ-ۯۺ-ۼۿܐ-ܿݍ-ޱߊ-ߪߴߵߺࠀ-ࠗࠚ-ࠬࡀ-ࡘࢠ-ࢴࣣ-ࣰࣩ-ऻऽ-ौॎ-ॐॕ-ॣॱ-ঃঅ-ঌএঐও-নপ-রলশ-হঽ-ৄেৈোৌৎৗড়ঢ়য়-ৣৰৱਁ-ਃਅ-ਊਏਐਓ-ਨਪ-ਰਲਲ਼ਵਸ਼ਸਹਾ-ੂੇੈੋੌੑਖ਼-ੜਫ਼ੰ-ੵઁ-ઃઅ-ઍએ-ઑઓ-નપ-રલળવ-હઽ-ૅે-ૉોૌૐૠ-ૣૹଁ-ଃଅ-ଌଏଐଓ-ନପ-ରଲଳଵ-ହଽ-ୄେୈୋୌୖୗଡ଼ଢ଼ୟ-ୣୱஂஃஅ-ஊஎ-ஐஒ-கஙசஜஞடணதந-பம-ஹா-ூெ-ைொ-ௌௐௗఀ-ఃఅ-ఌఎ-ఐఒ-నప-హఽ-ౄె-ైొ-ౌౕౖౘ-ౚౠ-ౣಁ-ಃಅ-ಌಎ-ಐಒ-ನಪ-ಳವ-ಹಽ-ೄೆ-ೈೊ-ೌೕೖೞೠ-ೣೱೲഁ-ഃഅ-ഌഎ-ഐഒ-ഺഽ-ൄെ-ൈൊ-ൌൎൗൟ-ൣൺ-ൿංඃඅ-ඖක-නඳ-රලව-ෆා-ුූෘ-ෟෲෳก-ฺเ-ๆํກຂຄງຈຊຍດ-ທນ-ຟມ-ຣລວສຫອ-ູົ-ຽເ-ໄໆໍໜ-ໟༀཀ-ཇཉ-ཬཱ-ཱྀྈ-ྗྙ-ྼက-ံးျ-ဿၐ-ၢၥ-ၨၮ-ႆႎႜႝႠ-ჅჇჍა-ჺჼ-ቈቊ-ቍቐ-ቖቘቚ-ቝበ-ኈኊ-ኍነ-ኰኲ-ኵኸ-ኾዀዂ-ዅወ-ዖዘ-ጐጒ-ጕጘ-ፚ፟ᎀ-ᎏᎠ-Ᏽᏸ-ᏽᐁ-ᙬᙯ-ᙿᚁ-ᚚᚠ-ᛪᛮ-ᛸᜀ-ᜌᜎ-ᜓᜠ-ᜳᝀ-ᝓᝠ-ᝬᝮ-ᝰᝲᝳក-ឳា-ៈៗៜᠠ-ᡷᢀ-ᢪᢰ-ᣵᤀ-ᤞᤠ-ᤫᤰ-ᤸᥐ-ᥭᥰ-ᥴᦀ-ᦫᦰ-ᧉᨀ-ᨛᨠ-ᩞᩡ-ᩴᪧᬀ-ᬳᬵ-ᭃᭅ-ᭋᮀ-ᮩᮬ-ᮯᮺ-ᯥᯧ-ᯱᰀ-ᰵᱍ-ᱏᱚ-ᱽᳩ-ᳬᳮ-ᳳᳵᳶᴀ-ᶿᷧ-ᷴḀ-ἕἘ-Ἕἠ-ὅὈ-Ὅὐ-ὗὙὛὝὟ-ώᾀ-ᾴᾶ-ᾼιῂ-ῄῆ-ῌῐ-ΐῖ-Ίῠ-Ῥῲ-ῴῶ-ῼⁱⁿₐ-ₜℂℇℊ-ℓℕℙ-ℝℤΩℨK-ℭℯ-ℹℼ-ℿⅅ-ⅉⅎⅠ-ↈⒶ-ⓩⰀ-Ⱞⰰ-ⱞⱠ-ⳤⳫ-ⳮⳲⳳⴀ-ⴥⴧⴭⴰ-ⵧⵯⶀ-ⶖⶠ-ⶦⶨ-ⶮⶰ-ⶶⶸ-ⶾⷀ-ⷆⷈ-ⷎⷐ-ⷖⷘ-ⷞⷠ-ⷿⸯ々-〇〡-〩〱-〵〸-〼ぁ-ゖゝ-ゟァ-ヺー-ヿㄅ-ㄭㄱ-ㆎㆠ-ㆺㇰ-ㇿ㐀-䶵一-鿕ꀀ-ꒌꓐ-ꓽꔀ-ꘌꘐ-ꘟꘪꘫꙀ-ꙮꙴ-ꙻꙿ-ꛯꜗ-ꜟꜢ-ꞈꞋ-ꞭꞰ-ꞷꟷ-ꠁꠃ-ꠅꠇ-ꠊꠌ-ꠧꡀ-ꡳꢀ-ꣃꣲ-ꣷꣻꣽꤊ-ꤪꤰ-ꥒꥠ-ꥼꦀ-ꦲꦴ-ꦿꧏꧠ-ꧤꧦ-ꧯꧺ-ꧾꨀ-ꨶꩀ-ꩍꩠ-ꩶꩺꩾ-ꪾꫀꫂꫛ-ꫝꫠ-ꫯꫲ-ꫵꬁ-ꬆꬉ-ꬎꬑ-ꬖꬠ-ꬦꬨ-ꬮꬰ-ꭚꭜ-ꭥꭰ-ꯪ가-힣ힰ-ퟆퟋ-ퟻ豈-舘並-龎ﬀ-ﬆﬓ-ﬗיִ-ﬨשׁ-זּטּ-לּמּנּסּףּפּצּ-ﮱﯓ-ﴽﵐ-ﶏﶒ-ﷇﷰ-ﷻﹰ-ﹴﹶ-ﻼＡ-Ｚａ-ｚｦ-ﾾￂ-ￇￊ-ￏￒ-ￗￚ-ￜ]|[0-9]|_|:/;
 
-function findParentSectionFromNode(renderTree, node) {
-  let renderNode =  renderTree.findRenderNodeFromElement(
+function findParentSectionFromNode (renderTree, node) {
+  let renderNode = renderTree.findRenderNodeFromElement(
     node,
     (renderNode) => renderNode.postNode.isSection
   );
@@ -24,7 +23,7 @@ function findParentSectionFromNode(renderTree, node) {
   return renderNode && renderNode.postNode;
 }
 
-function findOffsetInMarkerable(markerable, node, offset) {
+function findOffsetInMarkerable (markerable, node, offset) {
   let offsetInSection = 0;
   let marker = markerable.markers.head;
   while (marker) {
@@ -46,12 +45,12 @@ function findOffsetInMarkerable(markerable, node, offset) {
   return offsetInSection;
 }
 
-function findOffsetInSection(section, node, offset) {
+function findOffsetInSection (section, node, offset) {
   if (section.isMarkerable) {
     return findOffsetInMarkerable(section, node, offset);
   } else {
     assert('findOffsetInSection must be called with markerable or card section',
-           section.isCardSection);
+      section.isCardSection);
 
     let wrapperNode = section.renderNode.element;
     let endTextNode = wrapperNode.lastChild;
@@ -71,12 +70,12 @@ Position = class Position {
    * Two positions (a head and a tail) make up a {@link Range}.
    * @constructor
    */
-  constructor(section, offset=0, isBlank=false) {
+  constructor (section, offset = 0, isBlank = false) {
     if (!isBlank) {
       assert('Position must have a section that is addressable by the cursor',
-             (section && section.isLeafSection));
+        (section && section.isLeafSection));
       assert('Position must have numeric offset',
-             (typeof offset === 'number'));
+        (typeof offset === 'number'));
     }
 
     this.section = section;
@@ -90,18 +89,18 @@ Position = class Position {
    * @param {Editor} editor
    * @return {Position|null}
    */
-  static atPoint(x, y, editor) {
+  static atPoint (x, y, editor) {
     let { _renderTree, element: rootElement } = editor;
     let elementFromPoint = document.elementFromPoint(x, y);
     if (!containsNode(rootElement, elementFromPoint)) {
       return;
     }
 
-    let { node, offset } = findOffsetInNode(elementFromPoint, {left: x, top: y});
+    let { node, offset } = findOffsetInNode(elementFromPoint, { left: x, top: y });
     return Position.fromNode(_renderTree, node, offset);
   }
 
-  static blankPosition() {
+  static blankPosition () {
     return new BlankPosition();
   }
 
@@ -112,11 +111,11 @@ Position = class Position {
    * @return {Range}
    * @public
    */
-  toRange(tail=this, direction=null) {
+  toRange (tail = this, direction = null) {
     return new Range(this, tail, direction);
   }
 
-  get leafSectionIndex() {
+  get leafSectionIndex () {
     let post = this.section.post;
     let leafSectionIndex;
     post.walkAllLeafSections((section, index) => {
@@ -127,7 +126,7 @@ Position = class Position {
     return leafSectionIndex;
   }
 
-  get isMarkerable() {
+  get isMarkerable () {
     return this.section && this.section.isMarkerable;
   }
 
@@ -136,7 +135,7 @@ Position = class Position {
    * (i.e., the marker to the left of the cursor if the cursor is on a marker boundary and text is left-to-right)
    * @return {Marker|undefined}
    */
-  get marker() {
+  get marker () {
     return this.isMarkerable && this.markerPosition.marker;
   }
 
@@ -149,7 +148,7 @@ Position = class Position {
    * @param {Direction}
    * @return {Marker|undefined}
    */
-  markerIn(direction) {
+  markerIn (direction) {
     if (!this.isMarkerable) { return; }
 
     let { marker, offsetInMarker } = this;
@@ -164,40 +163,40 @@ Position = class Position {
     }
   }
 
-  get offsetInMarker() {
+  get offsetInMarker () {
     return this.markerPosition.offset;
   }
 
-  isEqual(position) {
+  isEqual (position) {
     return this.section === position.section &&
-           this.offset  === position.offset;
+           this.offset === position.offset;
   }
 
   /**
    * @return {Boolean} If this position is at the head of the post
    */
-  isHeadOfPost() {
+  isHeadOfPost () {
     return this.move(BACKWARD).isEqual(this);
   }
 
   /**
    * @return {Boolean} If this position is at the tail of the post
    */
-  isTailOfPost() {
+  isTailOfPost () {
     return this.move(FORWARD).isEqual(this);
   }
 
   /**
    * @return {Boolean} If this position is at the head of its section
    */
-  isHead() {
+  isHead () {
     return this.isEqual(this.section.headPosition());
   }
 
   /**
    * @return {Boolean} If this position is at the tail of its section
    */
-  isTail() {
+  isTail () {
     return this.isEqual(this.section.tailPosition());
   }
 
@@ -210,7 +209,7 @@ Position = class Position {
    * the same position will be returned. Same if the position is moving right and
    * at the end of the post.
    */
-  move(units) {
+  move (units) {
     assert('Must pass integer to Position#move', typeof units === 'number');
 
     if (units < 0) {
@@ -226,7 +225,7 @@ Position = class Position {
    * @param {Number} direction (FORWARD or BACKWARD)
    * @return {Position} The result of moving 1 "word" unit in `direction`
    */
-  moveWord(direction) {
+  moveWord (direction) {
     let isPostBoundary = direction === BACKWARD ? this.isHeadOfPost() : this.isTailOfPost();
     if (isPostBoundary) {
       return this;
@@ -301,7 +300,7 @@ Position = class Position {
    * @return {Position}
    * @private
    */
-  moveLeft() {
+  moveLeft () {
     if (this.isHead()) {
       let prev = this.section.previousLeafSection();
       return prev ? prev.tailPosition() : this;
@@ -323,7 +322,7 @@ Position = class Position {
    * @return {Position}
    * @private
    */
-  moveRight() {
+  moveRight () {
     if (this.isTail()) {
       let next = this.section.nextLeafSection();
       return next ? next.headPosition() : this;
@@ -339,7 +338,7 @@ Position = class Position {
     }
   }
 
-  static fromNode(renderTree, node, offset) {
+  static fromNode (renderTree, node, offset) {
     if (isTextNode(node)) {
       return Position.fromTextNode(renderTree, node, offset);
     } else {
@@ -347,7 +346,7 @@ Position = class Position {
     }
   }
 
-  static fromTextNode(renderTree, textNode, offsetInNode) {
+  static fromTextNode (renderTree, textNode, offsetInNode) {
     const renderNode = renderTree.getElementRenderNode(textNode);
     let section, offsetInSection;
 
@@ -356,7 +355,7 @@ Position = class Position {
       section = marker.section;
 
       assert(`Could not find parent section for mapped text node "${textNode.textContent}"`,
-             !!section);
+        !!section);
       offsetInSection = section.offsetOfMarker(marker, offsetInNode);
     } else {
       // all text nodes should be rendered by markers except:
@@ -365,7 +364,7 @@ Position = class Position {
       // both of these should have rendered parent sections, though
       section = findParentSectionFromNode(renderTree, textNode);
       assert(`Could not find parent section for un-mapped text node "${textNode.textContent}"`,
-             !!section);
+        !!section);
 
       offsetInSection = findOffsetInSection(section, textNode, offsetInNode);
     }
@@ -373,7 +372,7 @@ Position = class Position {
     return new Position(section, offsetInSection);
   }
 
-  static fromElementNode(renderTree, elementNode, offset) {
+  static fromElementNode (renderTree, elementNode, offset) {
     let position;
 
     // The browser may change the reported selection to equal the editor's root
@@ -396,7 +395,6 @@ Position = class Position {
         // the start of the card
         position = offset < 2 ? section.headPosition() : section.tailPosition();
       } else {
-
         // In Firefox it is possible for the cursor to be on an atom's wrapper
         // element. (In Chrome/Safari, the browser corrects this to be on
         // one of the text nodes surrounding the wrapper).
@@ -412,7 +410,6 @@ Position = class Position {
           }
           position = new Position(section, sectionOffset);
         } else if (offset >= elementNode.childNodes.length) {
-
           // This is to deal with how Firefox handles triple-click selections.
           // See https://stackoverflow.com/a/21234837/1269194 for an
           // explanation.
@@ -431,7 +428,7 @@ Position = class Position {
   /**
    * @private
    */
-  get markerPosition() {
+  get markerPosition () {
     assert('Cannot get markerPosition without a section', !!this.section);
     assert('cannot get markerPosition of a non-markerable', !!this.section.isMarkerable);
     return this.section.markerPositionAtOffset(this.offset);
@@ -439,27 +436,27 @@ Position = class Position {
 };
 
 BlankPosition = class BlankPosition extends Position {
-  constructor() {
+  constructor () {
     super(null, 0, true);
   }
 
-  isEqual(other) {
+  isEqual (other) {
     return other && other.isBlank;
   }
 
-  toRange() { return Range.blankRange(); }
-  get leafSectionIndex() { assert('must implement get leafSectionIndex', false); }
+  toRange () { return Range.blankRange(); }
+  get leafSectionIndex () { assert('must implement get leafSectionIndex', false); }
 
-  get isMarkerable() { return false; }
-  get marker() { return false; }
-  isHeadOfPost() { return false; }
-  isTailOfPost() { return false; }
-  isHead() { return false; }
-  isTail() { return false; }
-  move() { return this; }
-  moveWord() { return this; }
+  get isMarkerable () { return false; }
+  get marker () { return false; }
+  isHeadOfPost () { return false; }
+  isTailOfPost () { return false; }
+  isHead () { return false; }
+  isTail () { return false; }
+  move () { return this; }
+  moveWord () { return this; }
 
-  get markerPosition() { return {}; }
+  get markerPosition () { return {}; }
 };
 
 export default Position;

@@ -1,23 +1,23 @@
 import {
+  constrainSelectionTo,
   clearSelection,
-  comparePosition
+  comparePosition,
 } from '../utils/selection-utils';
 import { containsNode } from '../utils/dom-utils';
 import Position from './cursor/position';
 import Range from './cursor/range';
 import { DIRECTION } from '../utils/key';
-import { constrainSelectionTo } from '../utils/selection-utils';
 
 export { Position, Range };
 
 const Cursor = class Cursor {
-  constructor(editor) {
+  constructor (editor) {
     this.editor = editor;
     this.renderTree = editor._renderTree;
     this.post = editor.post;
   }
 
-  clearSelection() {
+  clearSelection () {
     clearSelection();
   }
 
@@ -25,12 +25,12 @@ const Cursor = class Cursor {
    * @return {Boolean} true when there is either a collapsed cursor in the
    * editor's element or a selection that is contained in the editor's element
    */
-  hasCursor() {
+  hasCursor () {
     return this.editor.hasRendered &&
            (this._hasCollapsedSelection() || this._hasSelection());
   }
 
-  hasSelection() {
+  hasSelection () {
     return this.editor.hasRendered &&
            this._hasSelection();
   }
@@ -38,7 +38,7 @@ const Cursor = class Cursor {
   /**
    * @return {Boolean} Can the cursor be on this element?
    */
-  isAddressable(element) {
+  isAddressable (element) {
     let { renderTree } = this;
     let renderNode = renderTree.findRenderNodeFromElement(element);
     if (renderNode && renderNode.postNode.isCardSection) {
@@ -59,7 +59,7 @@ const Cursor = class Cursor {
   /*
    * @return {Range} Cursor#Range object
    */
-  get offsets() {
+  get offsets () {
     if (!this.hasCursor()) { return Range.blankRange(); }
 
     let { selection, renderTree } = this;
@@ -67,7 +67,7 @@ const Cursor = class Cursor {
     selection = constrainSelectionTo(selection, parentNode);
 
     const {
-      headNode, headOffset, tailNode, tailOffset, direction
+      headNode, headOffset, tailNode, tailOffset, direction,
     } = comparePosition(selection);
 
     const headPosition = Position.fromNode(renderTree, headNode, headOffset);
@@ -76,7 +76,7 @@ const Cursor = class Cursor {
     return new Range(headPosition, tailPosition, direction);
   }
 
-  _findNodeForPosition(position) {
+  _findNodeForPosition (position) {
     let { section } = position;
     let node, offset;
     if (section.isCardSection) {
@@ -90,7 +90,7 @@ const Cursor = class Cursor {
       node = section.renderNode.cursorElement;
       offset = 0;
     } else {
-      let {marker, offsetInMarker} = position;
+      let { marker, offsetInMarker } = position;
       if (marker.isAtom) {
         if (offsetInMarker > 0) {
           // FIXME -- if there is a next marker, focus on it?
@@ -106,29 +106,30 @@ const Cursor = class Cursor {
       }
     }
 
-    return {node, offset};
+    return { node, offset };
   }
 
-  selectRange(range) {
+  selectRange (range) {
     if (range.isBlank) {
       this.clearSelection();
       return;
     }
 
     const { head, tail, direction } = range;
-    const { node:headNode, offset:headOffset } = this._findNodeForPosition(head),
-          { node:tailNode, offset:tailOffset } = this._findNodeForPosition(tail);
+    const { node: headNode, offset: headOffset } = this._findNodeForPosition(head);
+
+    const { node: tailNode, offset: tailOffset } = this._findNodeForPosition(tail);
     this._moveToNode(headNode, headOffset, tailNode, tailOffset, direction);
 
     // Firefox sometimes doesn't keep focus in the editor after adding a card
     this.editor._ensureFocus();
   }
 
-  get selection() {
+  get selection () {
     return window.getSelection();
   }
 
-  selectedText() {
+  selectedText () {
     // FIXME remove this
     return this.selection.toString();
   }
@@ -141,7 +142,7 @@ const Cursor = class Cursor {
    * @param {integer} direction forward or backward, default forward
    * @private
    */
-  _moveToNode(node, offset, endNode, endOffset, direction=DIRECTION.FORWARD) {
+  _moveToNode (node, offset, endNode, endOffset, direction = DIRECTION.FORWARD) {
     this.clearSelection();
 
     if (direction === DIRECTION.BACKWARD) {
@@ -159,7 +160,7 @@ const Cursor = class Cursor {
     }
   }
 
-  _hasSelection() {
+  _hasSelection () {
     const element = this.editor.element;
     const { _selectionRange } = this;
     if (!_selectionRange || _selectionRange.collapsed) { return false; }
@@ -168,7 +169,7 @@ const Cursor = class Cursor {
            containsNode(element, this.selection.focusNode);
   }
 
-  _hasCollapsedSelection() {
+  _hasCollapsedSelection () {
     const { _selectionRange } = this;
     if (!_selectionRange) { return false; }
 
@@ -176,7 +177,7 @@ const Cursor = class Cursor {
     return containsNode(element, this.selection.anchorNode);
   }
 
-  get _selectionRange() {
+  get _selectionRange () {
     const { selection } = this;
     if (selection.rangeCount === 0) { return null; }
     return selection.getRangeAt(0);

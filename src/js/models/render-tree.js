@@ -2,46 +2,46 @@ import RenderNode from 'mobiledoc-kit/models/render-node';
 import ElementMap from '../utils/element-map';
 
 export default class RenderTree {
-  constructor(rootPostNode) {
+  constructor (rootPostNode) {
     this._rootNode = this.buildRenderNode(rootPostNode);
     this._elements = new ElementMap();
   }
   /*
    * @return {RenderNode} The root render node in this tree
    */
-  get rootNode() {
+  get rootNode () {
     return this._rootNode;
   }
   /**
    * @return {Boolean}
    */
-  get isDirty() {
+  get isDirty () {
     return this.rootNode && this.rootNode.isDirty;
   }
   /*
    * @return {DOMNode} The root DOM element in this tree
    */
-  get rootElement() {
+  get rootElement () {
     return this.rootNode.element;
   }
   /*
    * @param {DOMNode} element
    * @return {RenderNode} The renderNode for this element, if any
    */
-  getElementRenderNode(element) {
+  getElementRenderNode (element) {
     return this._elements.get(element);
   }
-  setElementRenderNode(element, renderNode) {
+  setElementRenderNode (element, renderNode) {
     this._elements.set(element, renderNode);
   }
-  removeElementRenderNode(element) {
+  removeElementRenderNode (element) {
     this._elements.remove(element);
   }
   /**
    * @param {DOMNode} element
    * Walk up from the dom element until we find a renderNode element
    */
-  findRenderNodeFromElement(element, conditionFn=()=>true) {
+  findRenderNodeFromElement (element, conditionFn = () => true) {
     let renderNode;
     while (element) {
       renderNode = this.getElementRenderNode(element);
@@ -62,7 +62,7 @@ export default class RenderTree {
       }
     }
   }
-  buildRenderNode(postNode) {
+  buildRenderNode (postNode) {
     const renderNode = new RenderNode(postNode, this);
     postNode.renderNode = renderNode;
     return renderNode;

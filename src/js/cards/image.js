@@ -4,9 +4,9 @@ export default {
   name: 'image',
   type: 'dom',
 
-  render({payload}) {
+  render ({ payload }) {
     let img = document.createElement('img');
     img.src = payload.src || placeholderImageSrc;
     return img;
-  }
+  },
 };

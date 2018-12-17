@@ -1,3 +1,5 @@
+/* eslint-disable no-mixed-operators */
+
 import { POST_TYPE } from './types';
 import LinkedList from 'mobiledoc-kit/utils/linked-list';
 import { forEach } from 'mobiledoc-kit/utils/array-utils';
@@ -17,11 +19,15 @@ class Post {
   /**
    * @private
    */
-  constructor() {
+  constructor () {
     this.type = POST_TYPE;
     this.sections = new LinkedList({
-      adoptItem: s => s.post = s.parent = this,
-      freeItem: s => s.post = s.parent = null
+      adoptItem: s => {
+        s.post = s.parent = this;
+      },
+      freeItem: s => {
+        s.post = s.parent = null;
+      },
     });
   }
 
@@ -30,7 +36,7 @@ class Post {
    * if the post is blank)
    * @public
    */
-  headPosition() {
+  headPosition () {
     if (this.isBlank) {
       return Position.blankPosition();
     } else {
@@ -43,7 +49,7 @@ class Post {
    * if the post is blank)
    * @public
    */
-  tailPosition() {
+  tailPosition () {
     if (this.isBlank) {
       return Position.blankPosition();
     } else {
@@ -55,11 +61,11 @@ class Post {
    * @return {Range} A range encompassing the entire post
    * @public
    */
-  toRange() {
+  toRange () {
     return this.headPosition().toRange(this.tailPosition());
   }
 
-  get isBlank() {
+  get isBlank () {
     return this.sections.isEmpty;
   }
 
@@ -69,7 +75,7 @@ class Post {
    * @return {Boolean}
    * @public
    */
-  get hasContent() {
+  get hasContent () {
     if ((this.sections.length > 1) ||
         (this.sections.length === 1 && !this.sections.head.isBlank)) {
       return true;
@@ -82,20 +88,20 @@ class Post {
    * @param {Range} range
    * @return {Array} markers that are completely contained by the range
    */
-  markersContainedByRange(range) {
+  markersContainedByRange (range) {
     const markers = [];
 
     this.walkMarkerableSections(range, section => {
       section._markersInRange(
         range.trimTo(section),
-        (m, {isContained}) => { if (isContained) { markers.push(m); } }
+        (m, { isContained }) => { if (isContained) { markers.push(m); } }
       );
     });
 
     return markers;
   }
 
-  markupsInRange(range) {
+  markupsInRange (range) {
     const markups = new Set();
 
     if (range.isCollapsed) {
@@ -129,12 +135,12 @@ class Post {
     return markups.toArray();
   }
 
-  walkAllLeafSections(callback) {
+  walkAllLeafSections (callback) {
     let range = this.headPosition().toRange(this.tailPosition());
     return this.walkLeafSections(range, callback);
   }
 
-  walkLeafSections(range, callback) {
+  walkLeafSections (range, callback) {
     const { head, tail } = range;
 
     let index = 0;
@@ -156,7 +162,7 @@ class Post {
     }
   }
 
-  walkMarkerableSections(range, callback) {
+  walkMarkerableSections (range, callback) {
     this.walkLeafSections(range, section => {
       if (section.isMarkerable) {
         callback(section);
@@ -166,7 +172,7 @@ class Post {
 
   // return the next section that has markers after this one,
   // possibly skipping non-markerable sections
-  _nextLeafSection(section) {
+  _nextLeafSection (section) {
     if (!section) { return null; }
 
     const next = section.next;
@@ -190,12 +196,13 @@ class Post {
    * @param {Range} range
    * @return {Post} A new post, constrained to {range}
    */
-  trimTo(range) {
+  trimTo (range) {
     const post = this.builder.createPost();
     const { builder } = this;
 
-    let sectionParent = post,
-        listParent = null;
+    let sectionParent = post;
+
+    let listParent = null;
     this.walkLeafSections(range, section => {
       let newSection;
       if (section.isMarkerable) {

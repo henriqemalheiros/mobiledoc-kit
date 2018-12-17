@@ -1,7 +1,7 @@
 import mobiledocParsers from 'mobiledoc-kit/parsers/mobiledoc';
 import FixedQueue from 'mobiledoc-kit/utils/fixed-queue';
 
-function findLeafSectionAtIndex(post, index) {
+function findLeafSectionAtIndex (post, index) {
   let section;
   post.walkAllLeafSections((_section, _index) => {
     if (index === _index) {
@@ -12,7 +12,7 @@ function findLeafSectionAtIndex(post, index) {
 }
 
 export class Snapshot {
-  constructor(takenAt, editor, editAction=null) {
+  constructor (takenAt, editor, editAction = null) {
     this.mobiledoc = editor.serialize();
     this.editor = editor;
     this.editAction = editAction;
@@ -21,18 +21,18 @@ export class Snapshot {
     this.snapshotRange();
   }
 
-  snapshotRange() {
+  snapshotRange () {
     let { range, cursor } = this.editor;
     if (cursor.hasCursor() && !range.isBlank) {
       let { head, tail } = range;
       this.range = {
         head: [head.leafSectionIndex, head.offset],
-        tail: [tail.leafSectionIndex, tail.offset]
+        tail: [tail.leafSectionIndex, tail.offset],
       };
     }
   }
 
-  getRange(post) {
+  getRange (post) {
     if (this.range) {
       let { head, tail } = this.range;
       let [headLeafSectionIndex, headOffset] = head;
@@ -47,7 +47,7 @@ export class Snapshot {
     }
   }
 
-  groupsWith(groupingTimeout, editAction, takenAt) {
+  groupsWith (groupingTimeout, editAction, takenAt) {
     return (
       editAction !== null &&
       this.editAction === editAction &&
@@ -57,7 +57,7 @@ export class Snapshot {
 }
 
 export default class EditHistory {
-  constructor(editor, queueLength, groupingTimeout) {
+  constructor (editor, queueLength, groupingTimeout) {
     this.editor = editor;
     this._undoStack = new FixedQueue(queueLength);
     this._redoStack = new FixedQueue(queueLength);
@@ -66,14 +66,14 @@ export default class EditHistory {
     this._groupingTimeout = groupingTimeout;
   }
 
-  snapshot() {
+  snapshot () {
     // update the current snapshot with the range read from DOM
     if (this._pendingSnapshot) {
       this._pendingSnapshot.snapshotRange();
     }
   }
 
-  storeSnapshot(editAction=null) {
+  storeSnapshot (editAction = null) {
     let now = Date.now();
     // store pending snapshot
     let pendingSnapshot = this._pendingSnapshot;
@@ -88,7 +88,7 @@ export default class EditHistory {
     this._pendingSnapshot = new Snapshot(now, this.editor, editAction);
   }
 
-  stepBackward(postEditor) {
+  stepBackward (postEditor) {
     // Throw away the pending snapshot
     this._pendingSnapshot = null;
 
@@ -99,7 +99,7 @@ export default class EditHistory {
     }
   }
 
-  stepForward(postEditor) {
+  stepForward (postEditor) {
     let snapshot = this._redoStack.pop();
     if (snapshot) {
       this._undoStack.push(new Snapshot(Date.now(), this.editor));
@@ -108,7 +108,7 @@ export default class EditHistory {
     postEditor.cancelSnapshot();
   }
 
-  _restoreFromSnapshot(snapshot, postEditor) {
+  _restoreFromSnapshot (snapshot, postEditor) {
     let { mobiledoc } = snapshot;
     let { editor } = this;
     let { builder, post } = editor;

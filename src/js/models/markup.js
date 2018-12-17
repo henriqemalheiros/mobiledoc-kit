@@ -9,16 +9,16 @@ export const VALID_MARKUP_TAGNAMES = [
   'code',
   'em',
   'i',
-  's',   // strikethrough
+  's', // strikethrough
   'strong',
   'sub', // subscript
   'sup', // superscript
-  'u'
+  'u',
 ].map(normalizeTagName);
 
 export const VALID_ATTRIBUTES = [
   'href',
-  'rel'
+  'rel',
 ];
 
 /**
@@ -31,17 +31,17 @@ class Markup {
   /*
    * @param {Object} attributes key-values
    */
-  constructor(tagName, attributes={}) {
+  constructor (tagName, attributes = {}) {
     this.tagName = normalizeTagName(tagName);
 
     assert('Must use attributes object param (not array) for Markup',
-           !Array.isArray(attributes));
+      !Array.isArray(attributes));
 
     this.attributes = filterObject(attributes, VALID_ATTRIBUTES);
     this.type = MARKUP_TYPE;
 
     assert(`Cannot create markup of tagName ${tagName}`,
-           VALID_MARKUP_TAGNAMES.indexOf(this.tagName) !== -1);
+      VALID_MARKUP_TAGNAMES.indexOf(this.tagName) !== -1);
   }
 
   /**
@@ -49,15 +49,15 @@ class Markup {
    * should be considered to have this markup applied to it.
    * @private
    */
-  isForwardInclusive() {
-    return this.tagName === normalizeTagName("a") ? false : true;
+  isForwardInclusive () {
+    return this.tagName !== normalizeTagName('a');
   }
 
-  isBackwardInclusive() {
+  isBackwardInclusive () {
     return false;
   }
 
-  hasTag(tagName) {
+  hasTag (tagName) {
     return this.tagName === normalizeTagName(tagName);
   }
 
@@ -65,11 +65,11 @@ class Markup {
    * Returns the attribute value
    * @param {String} name, e.g. "href"
    */
-  getAttribute(name) {
+  getAttribute (name) {
     return this.attributes[name];
   }
 
-  static isValidElement(element) {
+  static isValidElement (element) {
     const tagName = normalizeTagName(element.tagName);
     return VALID_MARKUP_TAGNAMES.indexOf(tagName) !== -1;
   }

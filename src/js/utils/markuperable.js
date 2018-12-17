@@ -2,20 +2,19 @@ import { normalizeTagName } from '../utils/dom-utils';
 import { detect, commonItemLength, forEach, filter } from '../utils/array-utils';
 
 export default class Markerupable {
-
-  clearMarkups() {
+  clearMarkups () {
     this.markups = [];
   }
 
-  addMarkup(markup) {
+  addMarkup (markup) {
     this.markups.push(markup);
   }
 
-  addMarkupAtIndex(markup, index) {
+  addMarkupAtIndex (markup, index) {
     this.markups.splice(index, 0, markup);
   }
 
-  removeMarkup(markupOrMarkupCallback) {
+  removeMarkup (markupOrMarkupCallback) {
     let callback;
     if (typeof markupOrMarkupCallback === 'function') {
       callback = markupOrMarkupCallback;
@@ -30,18 +29,18 @@ export default class Markerupable {
     );
   }
 
-  _removeMarkup(markup) {
+  _removeMarkup (markup) {
     const index = this.markups.indexOf(markup);
     if (index !== -1) {
       this.markups.splice(index, 1);
     }
   }
 
-  hasMarkup(tagNameOrMarkup) {
+  hasMarkup (tagNameOrMarkup) {
     return !!this.getMarkup(tagNameOrMarkup);
   }
 
-  getMarkup(tagNameOrMarkup) {
+  getMarkup (tagNameOrMarkup) {
     if (typeof tagNameOrMarkup === 'string') {
       let tagName = normalizeTagName(tagNameOrMarkup);
       return detect(this.markups, markup => markup.tagName === tagName);
@@ -51,7 +50,7 @@ export default class Markerupable {
     }
   }
 
-  get openedMarkups() {
+  get openedMarkups () {
     let count = 0;
     if (this.prev) {
       count = commonItemLength(this.markups, this.prev.markups);
@@ -60,7 +59,7 @@ export default class Markerupable {
     return this.markups.slice(count);
   }
 
-  get closedMarkups() {
+  get closedMarkups () {
     let count = 0;
     if (this.next) {
       count = commonItemLength(this.markups, this.next.markups);

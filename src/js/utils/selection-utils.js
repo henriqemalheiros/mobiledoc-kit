@@ -1,18 +1,20 @@
+/* eslint-disable no-mixed-operators */
+
 import { DIRECTION } from '../utils/key';
 import { isTextNode, isElementNode } from 'mobiledoc-kit/utils/dom-utils';
 
-function clearSelection() {
+function clearSelection () {
   window.getSelection().removeAllRanges();
 }
 
-function textNodeRects(node) {
+function textNodeRects (node) {
   let range = document.createRange();
   range.setEnd(node, node.nodeValue.length);
   range.setStart(node, 0);
   return range.getClientRects();
 }
 
-function findOffsetInTextNode(node, coords) {
+function findOffsetInTextNode (node, coords) {
   let len = node.nodeValue.length;
   let range = document.createRange();
   for (let i = 0; i < len; i++) {
@@ -24,10 +26,10 @@ function findOffsetInTextNode(node, coords) {
     }
     if (rect.left <= coords.left && rect.right >= coords.left &&
         rect.top <= coords.top && rect.bottom >= coords.top) {
-      return {node, offset: i + (coords.left >= (rect.left + rect.right) / 2 ? 1 : 0)};
+      return { node, offset: i + (coords.left >= (rect.left + rect.right) / 2 ? 1 : 0) };
     }
   }
-  return {node, offset: 0};
+  return { node, offset: 0 };
 }
 
 /*
@@ -36,8 +38,8 @@ function findOffsetInTextNode(node, coords) {
  * @return {Object} {node, offset}
  */
 /* eslint-disable complexity */
-function findOffsetInNode(node, coords) {
-  let closest, dyClosest = 1e8, coordsClosest, offset = 0;
+function findOffsetInNode (node, coords) {
+  let closest; let dyClosest = 1e8; let coordsClosest; let offset = 0;
   for (let child = node.firstChild; child; child = child.nextSibling) {
     let rects;
     if (isElementNode(child)) {
@@ -52,11 +54,11 @@ function findOffsetInNode(node, coords) {
       let rect = rects[i];
       if (rect.left <= coords.left && rect.right >= coords.left) {
         let dy = rect.top > coords.top ? rect.top - coords.top
-            : rect.bottom < coords.top ? coords.top - rect.bottom : 0;
+          : rect.bottom < coords.top ? coords.top - rect.bottom : 0;
         if (dy < dyClosest) {
           closest = child;
           dyClosest = dy;
-          coordsClosest = dy ? {left: coords.left, top: rect.top} : coords;
+          coordsClosest = dy ? { left: coords.left, top: rect.top } : coords;
           if (isElementNode(child) && !child.firstChild) {
             offset = i + (coords.left >= (rect.left + rect.right) / 2 ? 1 : 0);
           }
@@ -70,7 +72,7 @@ function findOffsetInNode(node, coords) {
     }
   }
   if (!closest) {
-    return {node, offset};
+    return { node, offset };
   }
   if (isTextNode(closest)) {
     return findOffsetInTextNode(closest, coordsClosest);
@@ -78,26 +80,26 @@ function findOffsetInNode(node, coords) {
   if (closest.firstChild) {
     return findOffsetInNode(closest, coordsClosest);
   }
-  return {node, offset};
+  return { node, offset };
 }
 /* eslint-enable complexity */
 
-function constrainNodeTo(node, parentNode, existingOffset) {
+function constrainNodeTo (node, parentNode, existingOffset) {
   let compare = parentNode.compareDocumentPosition(node);
-  if (compare & Node.DOCUMENT_POSITION_CONTAINED_BY) {
+  if (compare & window.Node.DOCUMENT_POSITION_CONTAINED_BY) {
     // the node is inside parentNode, do nothing
-    return { node, offset: existingOffset};
-  } else if (compare & Node.DOCUMENT_POSITION_CONTAINS) {
+    return { node, offset: existingOffset };
+  } else if (compare & window.Node.DOCUMENT_POSITION_CONTAINS) {
     // the node contains parentNode. This shouldn't happen.
-    return { node, offset: existingOffset};
-  } else if (compare & Node.DOCUMENT_POSITION_PRECEDING) {
+    return { node, offset: existingOffset };
+  } else if (compare & window.Node.DOCUMENT_POSITION_PRECEDING) {
     // node is before parentNode. return start of deepest first child
     let child = parentNode.firstChild;
     while (child.firstChild) {
       child = child.firstChild;
     }
-    return { node: child, offset: 0};
-  } else if (compare & Node.DOCUMENT_POSITION_FOLLOWING) {
+    return { node: child, offset: 0 };
+  } else if (compare & window.Node.DOCUMENT_POSITION_FOLLOWING) {
     // node is after parentNode. return end of deepest last child
     let child = parentNode.lastChild;
     while (child.lastChild) {
@@ -105,9 +107,9 @@ function constrainNodeTo(node, parentNode, existingOffset) {
     }
 
     let offset = isTextNode(child) ? child.textContent.length : 1;
-    return {node: child, offset};
+    return { node: child, offset };
   } else {
-    return { node, offset: existingOffset};
+    return { node, offset: existingOffset };
   }
 }
 
@@ -116,20 +118,20 @@ function constrainNodeTo(node, parentNode, existingOffset) {
  * If the anchorNode or focusNode are outside the parentNode, they are replaced with the beginning
  * or end of the parentNode's children
  */
-function constrainSelectionTo(selection, parentNode) {
+function constrainSelectionTo (selection, parentNode) {
   let {
     node: anchorNode,
-    offset: anchorOffset
+    offset: anchorOffset,
   } = constrainNodeTo(selection.anchorNode, parentNode, selection.anchorOffset);
   let {
     node: focusNode,
-    offset: focusOffset
+    offset: focusOffset,
   } = constrainNodeTo(selection.focusNode, parentNode, selection.focusOffset);
 
   return { anchorNode, anchorOffset, focusNode, focusOffset };
 }
 
-function comparePosition(selection) {
+function comparePosition (selection) {
   let { anchorNode, focusNode, anchorOffset, focusOffset } = selection;
   let headNode, tailNode, headOffset, tailOffset, direction;
 
@@ -147,7 +149,7 @@ function comparePosition(selection) {
   // This code walks down the DOM tree until a good comparison of position can be
   // made.
   //
-  if (position & Node.DOCUMENT_POSITION_CONTAINS) {
+  if (position & window.Node.DOCUMENT_POSITION_CONTAINS) {
     if (focusOffset < focusNode.childNodes.length) {
       focusNode = focusNode.childNodes[focusOffset];
       focusOffset = 0;
@@ -163,9 +165,10 @@ function comparePosition(selection) {
     return comparePosition({
       focusNode,
       focusOffset,
-      anchorNode, anchorOffset
+      anchorNode,
+      anchorOffset,
     });
-  } else if (position & Node.DOCUMENT_POSITION_CONTAINED_BY) {
+  } else if (position & window.Node.DOCUMENT_POSITION_CONTAINED_BY) {
     let offset = anchorOffset - 1;
     if (offset < 0) {
       offset = 0;
@@ -173,14 +176,15 @@ function comparePosition(selection) {
     return comparePosition({
       anchorNode: anchorNode.childNodes[offset],
       anchorOffset: 0,
-      focusNode, focusOffset
+      focusNode,
+      focusOffset,
     });
   // The meat of translating anchor and focus nodes to head and tail nodes
-  } else if (position & Node.DOCUMENT_POSITION_FOLLOWING) {
+  } else if (position & window.Node.DOCUMENT_POSITION_FOLLOWING) {
     headNode = anchorNode; tailNode = focusNode;
     headOffset = anchorOffset; tailOffset = focusOffset;
     direction = DIRECTION.FORWARD;
-  } else if (position & Node.DOCUMENT_POSITION_PRECEDING) {
+  } else if (position & window.Node.DOCUMENT_POSITION_PRECEDING) {
     headNode = focusNode; tailNode = anchorNode;
     headOffset = focusOffset; tailOffset = anchorOffset;
     direction = DIRECTION.BACKWARD;
@@ -200,12 +204,12 @@ function comparePosition(selection) {
     }
   }
 
-  return {headNode, headOffset, tailNode, tailOffset, direction};
+  return { headNode, headOffset, tailNode, tailOffset, direction };
 }
 
 export {
   clearSelection,
   comparePosition,
   findOffsetInNode,
-  constrainSelectionTo
+  constrainSelectionTo,
 };

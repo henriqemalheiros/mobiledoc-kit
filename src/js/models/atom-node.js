@@ -1,7 +1,7 @@
 import assert from '../utils/assert';
 
 export default class AtomNode {
-  constructor(editor, atom, model, element, atomOptions) {
+  constructor (editor, atom, model, element, atomOptions) {
     this.editor = editor;
     this.atom = atom;
     this.model = model;
@@ -9,35 +9,37 @@ export default class AtomNode {
     this.element = element;
 
     this._teardownCallback = null;
-    this._rendered         = null;
+    this._rendered = null;
   }
 
-  render() {
+  render () {
     if (!this._rendered) {
-      let {atomOptions: options, env, model: { value, payload } } = this;
+      let { atomOptions: options, env, model: { value, payload } } = this;
       // cache initial render
-      this._rendered = this.atom.render({options, env, value, payload});
+      this._rendered = this.atom.render({ options, env, value, payload });
     }
 
     this._validateAndAppendRenderResult(this._rendered);
   }
 
-  get env() {
+  get env () {
     return {
       name: this.atom.name,
-      onTeardown: (callback) => this._teardownCallback = callback,
-      save: (value, payload={}) => {
+      onTeardown: (callback) => {
+        this._teardownCallback = callback;
+      },
+      save: (value, payload = {}) => {
         this.model.value = value;
         this.model.payload = payload;
 
         this.editor._postDidChange();
         this.teardown();
         this.render();
-      }
+      },
     };
   }
 
-  teardown() {
+  teardown () {
     if (this._teardownCallback) {
       this._teardownCallback();
       this._teardownCallback = null;
@@ -48,7 +50,7 @@ export default class AtomNode {
     }
   }
 
-  _validateAndAppendRenderResult(rendered) {
+  _validateAndAppendRenderResult (rendered) {
     if (!rendered) {
       return;
     }

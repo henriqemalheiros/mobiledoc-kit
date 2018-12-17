@@ -1,23 +1,23 @@
 import {
   NO_BREAK_SPACE,
   TAB_CHARACTER,
-  ATOM_CLASS_NAME
+  ATOM_CLASS_NAME,
 } from '../renderers/editor-dom';
 import {
   MARKUP_SECTION_TYPE,
   LIST_SECTION_TYPE,
-  LIST_ITEM_TYPE
+  LIST_ITEM_TYPE,
 } from '../models/types';
 import {
   isTextNode,
   isCommentNode,
   isElementNode,
   getAttributes,
-  normalizeTagName
+  normalizeTagName,
 } from '../utils/dom-utils';
 import {
   detect,
-  forEach
+  forEach,
 } from '../utils/array-utils';
 import { TAB } from 'mobiledoc-kit/utils/characters';
 import { ZWNJ } from 'mobiledoc-kit/renderers/editor-dom';
@@ -25,25 +25,25 @@ import { ZWNJ } from 'mobiledoc-kit/renderers/editor-dom';
 import SectionParser from 'mobiledoc-kit/parsers/section';
 import Markup from 'mobiledoc-kit/models/markup';
 
-const GOOGLE_DOCS_CONTAINER_ID_REGEX = /^docs\-internal\-guid/;
+const GOOGLE_DOCS_CONTAINER_ID_REGEX = /^docs-internal-guid/;
 
 const NO_BREAK_SPACE_REGEX = new RegExp(NO_BREAK_SPACE, 'g');
 const TAB_CHARACTER_REGEX = new RegExp(TAB_CHARACTER, 'g');
-export function transformHTMLText(textContent) {
+export function transformHTMLText (textContent) {
   let text = textContent;
   text = text.replace(NO_BREAK_SPACE_REGEX, ' ');
   text = text.replace(TAB_CHARACTER_REGEX, TAB);
   return text;
 }
 
-function isGoogleDocsContainer(element) {
+function isGoogleDocsContainer (element) {
   return !isTextNode(element) &&
          !isCommentNode(element) &&
          normalizeTagName(element.tagName) === normalizeTagName('b') &&
          GOOGLE_DOCS_CONTAINER_ID_REGEX.test(element.id);
 }
 
-function detectRootElement(element) {
+function detectRootElement (element) {
   let childNodes = element.childNodes || [];
   let googleDocsContainer = detect(childNodes, isGoogleDocsContainer);
 
@@ -56,20 +56,20 @@ function detectRootElement(element) {
 
 const TAG_REMAPPING = {
   'b': 'strong',
-  'i': 'em'
+  'i': 'em',
 };
 
-function remapTagName(tagName) {
+function remapTagName (tagName) {
   let normalized = normalizeTagName(tagName);
   let remapped = TAG_REMAPPING[normalized];
   return remapped || normalized;
 }
 
-function trim(str) {
+function trim (str) {
   return str.replace(/^\s+/, '').replace(/\s+$/, '');
 }
 
-function walkMarkerableNodes(parent, callback) {
+function walkMarkerableNodes (parent, callback) {
   let currentNode = parent;
 
   if (
@@ -94,12 +94,12 @@ function walkMarkerableNodes(parent, callback) {
  * @private
  */
 class DOMParser {
-  constructor(builder, options={}) {
+  constructor (builder, options = {}) {
     this.builder = builder;
     this.sectionParser = new SectionParser(this.builder, options);
   }
 
-  parse(element) {
+  parse (element) {
     const post = this.builder.createPost();
     let rootElement = detectRootElement(element);
 
@@ -111,11 +111,11 @@ class DOMParser {
     return post;
   }
 
-  appendSections(post, sections) {
+  appendSections (post, sections) {
     forEach(sections, section => this.appendSection(post, section));
   }
 
-  appendSection(post, section) {
+  appendSection (post, section) {
     if (section.isBlank || (section.isMarkerable && trim(section.text) === '')) {
       return;
     }
@@ -131,18 +131,18 @@ class DOMParser {
     }
   }
 
-  _eachChildNode(element, callback) {
+  _eachChildNode (element, callback) {
     let nodes = isTextNode(element) ? [element] : element.childNodes;
     forEach(nodes, node => callback(node));
   }
 
-  parseSections(element) {
+  parseSections (element) {
     return this.sectionParser.parse(element);
   }
 
   // walk up from the textNode until the rootNode, converting each
   // parentNode into a markup
-  collectMarkups(textNode, rootNode) {
+  collectMarkups (textNode, rootNode) {
     let markups = [];
     let currentNode = textNode.parentNode;
     while (currentNode && currentNode !== rootNode) {
@@ -157,7 +157,7 @@ class DOMParser {
   }
 
   // Turn an element node into a markup
-  markupFromNode(node) {
+  markupFromNode (node) {
     if (Markup.isValidElement(node)) {
       let tagName = remapTagName(node.tagName);
       let attributes = getAttributes(node);
@@ -167,7 +167,7 @@ class DOMParser {
 
   // FIXME should move to the section parser?
   // FIXME the `collectMarkups` logic could simplify the section parser?
-  reparseSection(section, renderTree) {
+  reparseSection (section, renderTree) {
     switch (section.type) {
       case LIST_SECTION_TYPE:
         return this.reparseListSection(section, renderTree);
@@ -176,23 +176,23 @@ class DOMParser {
       case MARKUP_SECTION_TYPE:
         return this.reparseMarkupSection(section, renderTree);
       default:
-        return; // can only parse the above types
+         // can only parse the above types
     }
   }
 
-  reparseMarkupSection(section, renderTree) {
+  reparseMarkupSection (section, renderTree) {
     return this._reparseSectionContainingMarkers(section, renderTree);
   }
 
-  reparseListItem(listItem, renderTree) {
+  reparseListItem (listItem, renderTree) {
     return this._reparseSectionContainingMarkers(listItem, renderTree);
   }
 
-  reparseListSection(listSection, renderTree) {
+  reparseListSection (listSection, renderTree) {
     listSection.items.forEach(li => this.reparseListItem(li, renderTree));
   }
 
-  _reparseSectionContainingMarkers(section, renderTree) {
+  _reparseSectionContainingMarkers (section, renderTree) {
     let element = section.renderNode.element;
     let seenRenderNodes = [];
     let previousMarker;
@@ -233,7 +233,7 @@ class DOMParser {
 
               seenRenderNodes.push(newPreviousRenderNode);
               section.renderNode.childNodes.insertBefore(newPreviousRenderNode,
-                                                         renderNode);
+                renderNode);
             }
           }
           if (tailTextNode.textContent !== ZWNJ) {

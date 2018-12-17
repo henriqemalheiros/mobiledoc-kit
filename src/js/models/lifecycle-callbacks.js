@@ -1,7 +1,7 @@
 import assert from 'mobiledoc-kit/utils/assert';
 
 export default class LifecycleCallbacks {
-  constructor(queueNames=[]) {
+  constructor (queueNames = []) {
     this.callbackQueues = {};
     this.removalQueues = {};
 
@@ -11,9 +11,9 @@ export default class LifecycleCallbacks {
     });
   }
 
-  runCallbacks(queueName, args=[]) {
+  runCallbacks (queueName, args = []) {
     let queue = this._getQueue(queueName);
-    queue.forEach(cb => cb(...args));
+    queue.forEach(qcb => qcb(...args));
 
     let toRemove = this.removalQueues[queueName];
     toRemove.forEach(cb => {
@@ -26,15 +26,15 @@ export default class LifecycleCallbacks {
     this.removalQueues[queueName] = [];
   }
 
-  addCallback(queueName, callback) {
+  addCallback (queueName, callback) {
     this._getQueue(queueName).push(callback);
   }
 
-  _scheduleCallbackForRemoval(queueName, callback) {
+  _scheduleCallbackForRemoval (queueName, callback) {
     this.removalQueues[queueName].push(callback);
   }
 
-  addCallbackOnce(queueName, callback) {
+  addCallbackOnce (queueName, callback) {
     let queue = this._getQueue(queueName);
     if (queue.indexOf(callback) === -1) {
       queue.push(callback);
@@ -42,7 +42,7 @@ export default class LifecycleCallbacks {
     }
   }
 
-  _getQueue(queueName) {
+  _getQueue (queueName) {
     let queue = this.callbackQueues[queueName];
     assert(`No queue found for "${queueName}"`, !!queue);
     return queue;

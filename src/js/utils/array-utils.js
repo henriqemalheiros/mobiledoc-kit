@@ -1,8 +1,8 @@
-function detect(enumerable, callback) {
+function detect (enumerable, callback) {
   if (enumerable.detect) {
     return enumerable.detect(callback);
   } else {
-    for (let i=0; i<enumerable.length; i++) {
+    for (let i = 0; i < enumerable.length; i++) {
       if (callback(enumerable[i])) {
         return enumerable[i];
       }
@@ -10,10 +10,10 @@ function detect(enumerable, callback) {
   }
 }
 
-function any(enumerable, callback) {
+function any (enumerable, callback) {
   if (enumerable.any) { return enumerable.any(callback); }
 
-  for (let i=0; i<enumerable.length; i++) {
+  for (let i = 0; i < enumerable.length; i++) {
     if (callback(enumerable[i])) {
       return true;
     }
@@ -22,10 +22,10 @@ function any(enumerable, callback) {
   return false;
 }
 
-function every(enumerable, callback) {
+function every (enumerable, callback) {
   if (enumerable.every) { return enumerable.every(callback); }
 
-  for (let i=0; i<enumerable.length; i++) {
+  for (let i = 0; i < enumerable.length; i++) {
     if (!callback(enumerable[i])) {
       return false;
     }
@@ -33,7 +33,7 @@ function every(enumerable, callback) {
   return true;
 }
 
-function toArray(arrayLike) {
+function toArray (arrayLike) {
   return Array.prototype.slice.call(arrayLike);
 }
 
@@ -42,17 +42,17 @@ function toArray(arrayLike) {
  * actually arrays, like NodeList
  * @private
  */
-function forEach(enumerable, callback) {
+function forEach (enumerable, callback) {
   if (enumerable.forEach) {
     enumerable.forEach(callback);
   } else {
-    for (let i=0; i<enumerable.length; i++) {
+    for (let i = 0; i < enumerable.length; i++) {
       callback(enumerable[i], i);
     }
   }
 }
 
-function filter(enumerable, conditionFn) {
+function filter (enumerable, conditionFn) {
   const filtered = [];
   forEach(enumerable, i => {
     if (conditionFn(i)) { filtered.push(i); }
@@ -64,7 +64,7 @@ function filter(enumerable, conditionFn) {
  * @return {Integer} the number of items that are the same, starting from the 0th index, in a and b
  * @private
  */
-function commonItemLength(listA, listB) {
+function commonItemLength (listA, listB) {
   let offset = 0;
   while (offset < listA.length && offset < listB.length) {
     if (listA[offset] !== listB[offset]) {
@@ -79,7 +79,7 @@ function commonItemLength(listA, listB) {
  * @return {Array} the items that are the same, starting from the 0th index, in a and b
  * @private
  */
-function commonItems(listA, listB) {
+function commonItems (listA, listB) {
   let offset = 0;
   while (offset < listA.length && offset < listB.length) {
     if (listA[offset] !== listB[offset]) {
@@ -91,11 +91,11 @@ function commonItems(listA, listB) {
 }
 
 // return new array without falsy items like ruby's `compact`
-function compact(enumerable) {
+function compact (enumerable) {
   return filter(enumerable, i => !!i);
 }
 
-function reduce(enumerable, callback, initialValue) {
+function reduce (enumerable, callback, initialValue) {
   let previousValue = initialValue;
   forEach(enumerable, (val, index) => {
     previousValue = callback(previousValue, val, index);
@@ -108,16 +108,16 @@ function reduce(enumerable, callback, initialValue) {
  * @return {Object} {key1:value1, key2:value2, ...}
  * @private
  */
-function kvArrayToObject(array) {
+function kvArrayToObject (array) {
   const obj = {};
-  for (let i = 0; i < array.length; i+=2) {
-    let [key, value] = [array[i], array[i+1]];
+  for (let i = 0; i < array.length; i += 2) {
+    let [key, value] = [array[i], array[i + 1]];
     obj[key] = value;
   }
   return obj;
 }
 
-function objectToSortedKVArray(obj) {
+function objectToSortedKVArray (obj) {
   const keys = Object.keys(obj).sort();
   const result = [];
   keys.forEach(k => {
@@ -128,31 +128,33 @@ function objectToSortedKVArray(obj) {
 }
 
 // check shallow equality of two non-nested arrays
-function isArrayEqual(arr1, arr2) {
-  let l1 = arr1.length, l2 = arr2.length;
+function isArrayEqual (arr1, arr2) {
+  let l1 = arr1.length; let l2 = arr2.length;
   if (l1 !== l2) { return false; }
 
-  for (let i=0; i < l1; i++) {
+  for (let i = 0; i < l1; i++) {
     if (arr1[i] !== arr2[i]) { return false; }
   }
   return true;
 }
 
 // return an object with only the valid keys
-function filterObject(object, validKeys=[]) {
+function filterObject (object, validKeys = []) {
   let result = {};
   forEach(
     filter(Object.keys(object), key => validKeys.indexOf(key) !== -1),
-      key => result[key] = object[key]
+    key => {
+      result[key] = object[key];
+    }
   );
   return result;
 }
 
-function contains(array, item) {
+function contains (array, item) {
   return array.indexOf(item) !== -1;
 }
 
-function values(object) {
+function values (object) {
   return Object.keys(object).map(key => object[key]);
 }
 
@@ -172,5 +174,5 @@ export {
   toArray,
   filterObject,
   contains,
-  values
+  values,
 };

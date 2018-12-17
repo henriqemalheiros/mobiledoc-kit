@@ -1,3 +1,5 @@
+/* eslint-disable no-unmodified-loop-condition */
+
 import CardNode from 'mobiledoc-kit/models/card-node';
 import { detect, forEach } from 'mobiledoc-kit/utils/array-utils';
 import AtomNode from 'mobiledoc-kit/models/atom-node';
@@ -9,7 +11,7 @@ import {
   MARKER_TYPE,
   IMAGE_SECTION_TYPE,
   CARD_TYPE,
-  ATOM_TYPE
+  ATOM_TYPE,
 } from '../models/types';
 import { startsWith, endsWith } from '../utils/string-utils';
 import { addClassName, removeClassName } from '../utils/dom-utils';
@@ -26,7 +28,7 @@ export const ATOM_CLASS_NAME = '-mobiledoc-kit__atom';
 export const EDITOR_HAS_NO_CONTENT_CLASS_NAME = '__has-no-content';
 export const EDITOR_ELEMENT_CLASS_NAME = '__mobiledoc-editor';
 
-function createElementFromMarkup(doc, markup) {
+function createElementFromMarkup (doc, markup) {
   let element = doc.createElement(markup.tagName);
   Object.keys(markup.attributes).forEach(k => {
     element.setAttribute(k, markup.attributes[k]);
@@ -34,23 +36,23 @@ function createElementFromMarkup(doc, markup) {
   return element;
 }
 
-const TWO_SPACES         = `${SPACE}${SPACE}`;
+const TWO_SPACES = `${SPACE}${SPACE}`;
 const SPACE_AND_NO_BREAK = `${SPACE}${NO_BREAK_SPACE}`;
-const SPACES_REGEX       = new RegExp(TWO_SPACES, 'g');
-const TAB_REGEX          = new RegExp(TAB, 'g');
-const endsWithSpace = function(text) {
+const SPACES_REGEX = new RegExp(TWO_SPACES, 'g');
+const TAB_REGEX = new RegExp(TAB, 'g');
+const endsWithSpace = function (text) {
   return endsWith(text, SPACE);
 };
-const startsWithSpace = function(text) {
+const startsWithSpace = function (text) {
   return startsWith(text, SPACE);
 };
 
 // FIXME: This can be done more efficiently with a single pass
 // building a correct string based on the original.
-function renderHTMLText(marker) {
+function renderHTMLText (marker) {
   let text = marker.value;
   text = text.replace(SPACES_REGEX, SPACE_AND_NO_BREAK)
-             .replace(TAB_REGEX,    TAB_CHARACTER);
+    .replace(TAB_REGEX, TAB_CHARACTER);
 
   // If the first marker has a leading space or the last marker has a
   // trailing space, the browser will collapse the space when we position
@@ -69,17 +71,17 @@ function renderHTMLText(marker) {
 
 // ascends from element upward, returning the last parent node that is not
 // parentElement
-function penultimateParentOf(element, parentElement) {
+function penultimateParentOf (element, parentElement) {
   while (parentElement &&
          element.parentNode !== parentElement &&
          element.parentNode !== document.body // ensure the while loop stops
-        ) {
+  ) {
     element = element.parentNode;
   }
   return element;
 }
 
-function renderMarkupSection(section) {
+function renderMarkupSection (section) {
   let element;
   if (MARKUP_SECTION_ELEMENT_NAMES.indexOf(section.tagName) !== -1) {
     element = document.createElement(section.tagName);
@@ -91,23 +93,23 @@ function renderMarkupSection(section) {
   return element;
 }
 
-function renderListSection(section) {
+function renderListSection (section) {
   return document.createElement(section.tagName);
 }
 
-function renderListItem() {
+function renderListItem () {
   return document.createElement('li');
 }
 
-function renderCursorPlaceholder() {
+function renderCursorPlaceholder () {
   return document.createElement('br');
 }
 
-function renderInlineCursorPlaceholder() {
+function renderInlineCursorPlaceholder () {
   return document.createTextNode(ZWNJ);
 }
 
-function renderCard() {
+function renderCard () {
   let wrapper = document.createElement('div');
   let cardElement = document.createElement('div');
   cardElement.contentEditable = false;
@@ -123,10 +125,10 @@ function renderCard() {
  * @return {DOMElement} the wrapped element
  * @private
  */
-function wrapElement(element, openedMarkups) {
+function wrapElement (element, openedMarkups) {
   let wrappedElement = element;
 
-  for (let i=openedMarkups.length - 1; i>=0; i--) {
+  for (let i = openedMarkups.length - 1; i >= 0; i--) {
     let markup = openedMarkups[i];
     let openedElement = createElementFromMarkup(document, markup);
     openedElement.appendChild(wrappedElement);
@@ -138,18 +140,18 @@ function wrapElement(element, openedMarkups) {
 
 // Attach the element to its parent element at the correct position based on the
 // previousRenderNode
-function attachElementToParent(element, parentElement, previousRenderNode=null) {
+function attachElementToParent (element, parentElement, previousRenderNode = null) {
   if (previousRenderNode) {
     let previousSibling = previousRenderNode.element;
     let previousSiblingPenultimate = penultimateParentOf(previousSibling,
-                                                         parentElement);
+      parentElement);
     parentElement.insertBefore(element, previousSiblingPenultimate.nextSibling);
   } else {
     parentElement.insertBefore(element, parentElement.firstChild);
   }
 }
 
-function renderAtom(atom, element, previousRenderNode) {
+function renderAtom (atom, element, previousRenderNode) {
   let atomElement = document.createElement('span');
   atomElement.contentEditable = false;
 
@@ -170,11 +172,11 @@ function renderAtom(atom, element, previousRenderNode) {
     wrapper,
     atomElement,
     headTextNode,
-    tailTextNode
+    tailTextNode,
   };
 }
 
-function getNextMarkerElement(renderNode) {
+function getNextMarkerElement (renderNode) {
   let element = renderNode.element.parentNode;
   let marker = renderNode.postNode;
   let closedCount = marker.closedMarkups.length;
@@ -197,7 +199,7 @@ function getNextMarkerElement(renderNode) {
  *         markups, element and markupElement will be the same textNode
  * @private
  */
-function renderMarker(marker, parentElement, previousRenderNode) {
+function renderMarker (marker, parentElement, previousRenderNode) {
   let text = renderHTMLText(marker);
 
   let element = document.createTextNode(text);
@@ -209,7 +211,7 @@ function renderMarker(marker, parentElement, previousRenderNode) {
 
 // Attach the render node's element to the DOM,
 // replacing the originalElement if it exists
-function attachRenderNodeElementToDOM(renderNode, originalElement=null) {
+function attachRenderNodeElementToDOM (renderNode, originalElement = null) {
   const element = renderNode.element;
   const hasRendered = !!originalElement;
 
@@ -230,18 +232,18 @@ function attachRenderNodeElementToDOM(renderNode, originalElement=null) {
   }
 }
 
-function removeRenderNodeSectionFromParent(renderNode, section) {
+function removeRenderNodeSectionFromParent (renderNode, section) {
   const parent = renderNode.parent.postNode;
   parent.sections.remove(section);
 }
 
-function removeRenderNodeElementFromParent(renderNode) {
+function removeRenderNodeElementFromParent (renderNode) {
   if (renderNode.element && renderNode.element.parentNode) {
     renderNode.element.parentNode.removeChild(renderNode.element);
   }
 }
 
-function validateCards(cards=[]) {
+function validateCards (cards = []) {
   forEach(cards, card => {
     assert(
       `Card "${card.name}" must define type "dom", has: "${card.type}"`,
@@ -255,7 +257,7 @@ function validateCards(cards=[]) {
   return cards;
 }
 
-function validateAtoms(atoms=[]) {
+function validateAtoms (atoms = []) {
   forEach(atoms, atom => {
     assert(
       `Atom "${atom.name}" must define type "dom", has: "${atom.type}"`,
@@ -270,7 +272,7 @@ function validateAtoms(atoms=[]) {
 }
 
 class Visitor {
-  constructor(editor, cards, atoms, unknownCardHandler, unknownAtomHandler, options) {
+  constructor (editor, cards, atoms, unknownCardHandler, unknownAtomHandler, options) {
     this.editor = editor;
     this.cards = validateCards(cards);
     this.atoms = validateAtoms(atoms);
@@ -279,12 +281,12 @@ class Visitor {
     this.options = options;
   }
 
-  _findCard(cardName) {
+  _findCard (cardName) {
     let card = detect(this.cards, card => card.name === cardName);
     return card || this._createUnknownCard(cardName);
   }
 
-  _createUnknownCard(cardName) {
+  _createUnknownCard (cardName) {
     assert(
       `Unknown card "${cardName}" found, but no unknownCardHandler is defined`,
       !!this.unknownCardHandler
@@ -294,16 +296,16 @@ class Visitor {
       name: cardName,
       type: 'dom',
       render: this.unknownCardHandler,
-      edit:   this.unknownCardHandler
+      edit: this.unknownCardHandler,
     };
   }
 
-  _findAtom(atomName) {
+  _findAtom (atomName) {
     let atom = detect(this.atoms, atom => atom.name === atomName);
     return atom || this._createUnknownAtom(atomName);
   }
 
-  _createUnknownAtom(atomName) {
+  _createUnknownAtom (atomName) {
     assert(
       `Unknown atom "${atomName}" found, but no unknownAtomHandler is defined`,
       !!this.unknownAtomHandler
@@ -312,11 +314,11 @@ class Visitor {
     return {
       name: atomName,
       type: 'dom',
-      render: this.unknownAtomHandler
+      render: this.unknownAtomHandler,
     };
   }
 
-  [POST_TYPE](renderNode, post, visit) {
+  [POST_TYPE] (renderNode, post, visit) {
     if (!renderNode.element) {
       renderNode.element = document.createElement('div');
     }
@@ -329,7 +331,7 @@ class Visitor {
     visit(renderNode, post.sections);
   }
 
-  [MARKUP_SECTION_TYPE](renderNode, section, visit) {
+  [MARKUP_SECTION_TYPE] (renderNode, section, visit) {
     const originalElement = renderNode.element;
 
     // Always rerender the section -- its tag name or attributes may have changed.
@@ -348,7 +350,7 @@ class Visitor {
     }
   }
 
-  [LIST_SECTION_TYPE](renderNode, section, visit) {
+  [LIST_SECTION_TYPE] (renderNode, section, visit) {
     const originalElement = renderNode.element;
 
     renderNode.element = renderListSection(section);
@@ -358,7 +360,7 @@ class Visitor {
     visit(renderNode, section.items, visitAll);
   }
 
-  [LIST_ITEM_TYPE](renderNode, item, visit) {
+  [LIST_ITEM_TYPE] (renderNode, item, visit) {
     // FIXME do we need to do anything special for rerenders?
     renderNode.element = renderListItem();
     renderNode.cursorElement = null;
@@ -374,7 +376,7 @@ class Visitor {
     }
   }
 
-  [MARKER_TYPE](renderNode, marker) {
+  [MARKER_TYPE] (renderNode, marker) {
     let parentElement;
 
     if (renderNode.prev) {
@@ -390,7 +392,7 @@ class Visitor {
     renderNode.markupElement = markupElement;
   }
 
-  [IMAGE_SECTION_TYPE](renderNode, section) {
+  [IMAGE_SECTION_TYPE] (renderNode, section) {
     if (renderNode.element) {
       if (renderNode.element.src !== section.src) {
         renderNode.element.src = section.src;
@@ -412,9 +414,9 @@ class Visitor {
     }
   }
 
-  [CARD_TYPE](renderNode, section) {
+  [CARD_TYPE] (renderNode, section) {
     const originalElement = renderNode.element;
-    const {editor, options} = this;
+    const { editor, options } = this;
 
     const card = this._findCard(section.name);
 
@@ -430,7 +432,7 @@ class Visitor {
     cardNode[initialMode]();
   }
 
-  [ATOM_TYPE](renderNode, atomModel) {
+  [ATOM_TYPE] (renderNode, atomModel) {
     let parentElement;
 
     if (renderNode.prev) {
@@ -445,7 +447,7 @@ class Visitor {
       markupElement,
       atomElement,
       headTextNode,
-      tailTextNode
+      tailTextNode,
     } = renderAtom(atomModel, parentElement, renderNode.prev);
     const atom = this._findAtom(atomModel.name);
 
@@ -469,26 +471,26 @@ class Visitor {
 }
 
 let destroyHooks = {
-  [POST_TYPE](/*renderNode, post*/) {
+  [POST_TYPE] (/* renderNode, post */) {
     assert('post destruction is not supported by the renderer', false);
   },
 
-  [MARKUP_SECTION_TYPE](renderNode, section) {
+  [MARKUP_SECTION_TYPE] (renderNode, section) {
     removeRenderNodeSectionFromParent(renderNode, section);
     removeRenderNodeElementFromParent(renderNode);
   },
 
-  [LIST_SECTION_TYPE](renderNode, section) {
+  [LIST_SECTION_TYPE] (renderNode, section) {
     removeRenderNodeSectionFromParent(renderNode, section);
     removeRenderNodeElementFromParent(renderNode);
   },
 
-  [LIST_ITEM_TYPE](renderNode, li) {
+  [LIST_ITEM_TYPE] (renderNode, li) {
     removeRenderNodeSectionFromParent(renderNode, li);
     removeRenderNodeElementFromParent(renderNode);
   },
 
-  [MARKER_TYPE](renderNode, marker) {
+  [MARKER_TYPE] (renderNode, marker) {
     // FIXME before we render marker, should delete previous renderNode's element
     // and up until the next marker element
 
@@ -509,12 +511,12 @@ let destroyHooks = {
     }
   },
 
-  [IMAGE_SECTION_TYPE](renderNode, section) {
+  [IMAGE_SECTION_TYPE] (renderNode, section) {
     removeRenderNodeSectionFromParent(renderNode, section);
     removeRenderNodeElementFromParent(renderNode);
   },
 
-  [CARD_TYPE](renderNode, section) {
+  [CARD_TYPE] (renderNode, section) {
     if (renderNode.cardNode) {
       renderNode.cardNode.teardown();
     }
@@ -522,18 +524,18 @@ let destroyHooks = {
     removeRenderNodeElementFromParent(renderNode);
   },
 
-  [ATOM_TYPE](renderNode, atom) {
+  [ATOM_TYPE] (renderNode, atom) {
     if (renderNode.atomNode) {
       renderNode.atomNode.teardown();
     }
 
     // an atom is a kind of marker so just call its destroy hook vs copying here
     destroyHooks[MARKER_TYPE](renderNode, atom);
-  }
+  },
 };
 
 // removes children from parentNode (a RenderNode) that are scheduled for removal
-function removeDestroyedChildren(parentNode, forceRemoval=false) {
+function removeDestroyedChildren (parentNode, forceRemoval = false) {
   let child = parentNode.childNodes.head;
   let nextChild, method;
   while (child) {
@@ -551,7 +553,7 @@ function removeDestroyedChildren(parentNode, forceRemoval=false) {
 
 // Find an existing render node for the given postNode, or
 // create one, insert it into the tree, and return it
-function lookupNode(renderTree, parentNode, postNode, previousNode) {
+function lookupNode (renderTree, parentNode, postNode, previousNode) {
   if (postNode.renderNode) {
     return postNode.renderNode;
   } else {
@@ -562,14 +564,14 @@ function lookupNode(renderTree, parentNode, postNode, previousNode) {
 }
 
 export default class Renderer {
-  constructor(editor, cards, atoms, unknownCardHandler, unknownAtomHandler, options) {
+  constructor (editor, cards, atoms, unknownCardHandler, unknownAtomHandler, options) {
     this.editor = editor;
     this.visitor = new Visitor(editor, cards, atoms, unknownCardHandler, unknownAtomHandler, options);
     this.nodes = [];
     this.hasRendered = false;
   }
 
-  destroy() {
+  destroy () {
     if (!this.hasRendered) {
       return;
     }
@@ -578,7 +580,7 @@ export default class Renderer {
     removeDestroyedChildren(renderNode, force);
   }
 
-  visit(renderTree, parentNode, postNodes, visitAll=false) {
+  visit (renderTree, parentNode, postNodes, visitAll = false) {
     let previousNode;
     postNodes.forEach(postNode => {
       let node = lookupNode(renderTree, parentNode, postNode, previousNode);
@@ -589,7 +591,7 @@ export default class Renderer {
     });
   }
 
-  render(renderTree) {
+  render (renderTree) {
     this.hasRendered = true;
     this.renderTree = renderTree;
     let renderNode = renderTree.rootNode;
@@ -602,7 +604,7 @@ export default class Renderer {
       method = postNode.type;
       assert(`EditorDom visitor cannot handle type ${method}`, !!this.visitor[method]);
       this.visitor[method](renderNode, postNode,
-                           (...args) => this.visit(renderTree, ...args));
+        (...args) => this.visit(renderTree, ...args));
       renderNode.markClean();
       renderNode = this.nodes.shift();
     }

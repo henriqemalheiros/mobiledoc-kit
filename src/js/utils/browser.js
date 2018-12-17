@@ -1,8 +1,8 @@
 export default {
-  isMac() {
+  isMac () {
     return (typeof window !== 'undefined') && window.navigator && /Mac/.test(window.navigator.platform);
   },
-  isWin() {
+  isWin () {
     return (typeof window !== 'undefined') && window.navigator && /Win/.test(window.navigator.platform);
-  }
+  },
 };

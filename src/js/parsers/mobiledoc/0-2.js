@@ -2,16 +2,16 @@ import {
   MOBILEDOC_MARKUP_SECTION_TYPE,
   MOBILEDOC_IMAGE_SECTION_TYPE,
   MOBILEDOC_LIST_SECTION_TYPE,
-  MOBILEDOC_CARD_SECTION_TYPE
+  MOBILEDOC_CARD_SECTION_TYPE,
 } from 'mobiledoc-kit/renderers/mobiledoc/0-2';
-import { kvArrayToObject, filter } from "../../utils/array-utils";
+import { kvArrayToObject, filter } from '../../utils/array-utils';
 import assert from 'mobiledoc-kit/utils/assert';
 
 /*
  * Parses from mobiledoc -> post
  */
 export default class MobiledocParser {
-  constructor(builder) {
+  constructor (builder) {
     this.builder = builder;
   }
 
@@ -19,10 +19,10 @@ export default class MobiledocParser {
    * @param {Mobiledoc}
    * @return {Post}
    */
-  parse({sections: sectionData}) {
+  parse ({ sections: sectionData }) {
     try {
       const markerTypes = sectionData[0];
-      const sections    = sectionData[1];
+      const sections = sectionData[1];
 
       const post = this.builder.createPost();
 
@@ -36,22 +36,22 @@ export default class MobiledocParser {
     }
   }
 
-  parseMarkerTypes(markerTypes) {
+  parseMarkerTypes (markerTypes) {
     return markerTypes.map((markerType) => this.parseMarkerType(markerType));
   }
 
-  parseMarkerType([tagName, attributesArray]) {
+  parseMarkerType ([tagName, attributesArray]) {
     const attributesObject = kvArrayToObject(attributesArray || []);
     return this.builder.createMarkup(tagName, attributesObject);
   }
 
-  parseSections(sections, post) {
+  parseSections (sections, post) {
     sections.forEach((section) => this.parseSection(section, post));
   }
 
-  parseSection(section, post) {
+  parseSection (section, post) {
     let [type] = section;
-    switch(type) {
+    switch (type) {
       case MOBILEDOC_MARKUP_SECTION_TYPE:
         this.parseMarkupSection(section, post);
         break;
@@ -69,17 +69,17 @@ export default class MobiledocParser {
     }
   }
 
-  parseCardSection([, name, payload], post) {
+  parseCardSection ([, name, payload], post) {
     const section = this.builder.createCardSection(name, payload);
     post.sections.append(section);
   }
 
-  parseImageSection([, src], post) {
+  parseImageSection ([, src], post) {
     const section = this.builder.createImageSection(src);
     post.sections.append(section);
   }
 
-  parseMarkupSection([, tagName, markers], post) {
+  parseMarkupSection ([, tagName, markers], post) {
     const section = this.builder.createMarkupSection(tagName.toLowerCase() === 'pull-quote' ? 'aside' : tagName);
     post.sections.append(section);
     this.parseMarkers(markers, section);
@@ -90,32 +90,32 @@ export default class MobiledocParser {
     });
   }
 
-  parseListSection([, tagName, items], post) {
+  parseListSection ([, tagName, items], post) {
     const section = this.builder.createListSection(tagName);
     post.sections.append(section);
     this.parseListItems(items, section);
   }
 
-  parseListItems(items, section) {
+  parseListItems (items, section) {
     items.forEach(i => this.parseListItem(i, section));
   }
 
-  parseListItem(markers, section) {
+  parseListItem (markers, section) {
     const item = this.builder.createListItem();
     this.parseMarkers(markers, item);
     section.items.append(item);
   }
 
-  parseMarkers(markers, parent) {
+  parseMarkers (markers, parent) {
     markers.forEach(m => this.parseMarker(m, parent));
   }
 
-  parseMarker([markerTypeIndexes, closeCount, value], parent) {
+  parseMarker ([markerTypeIndexes, closeCount, value], parent) {
     markerTypeIndexes.forEach(index => {
       this.markups.push(this.markerTypes[index]);
     });
     const marker = this.builder.createMarker(value, this.markups.slice());
     parent.markers.append(marker);
-    this.markups = this.markups.slice(0, this.markups.length-closeCount);
+    this.markups = this.markups.slice(0, this.markups.length - closeCount);
   }
 }

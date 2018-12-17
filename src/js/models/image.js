@@ -2,20 +2,20 @@ import { IMAGE_SECTION_TYPE } from './types';
 import Section from './_section';
 
 export default class Image extends Section {
-  constructor() {
+  constructor () {
     super(IMAGE_SECTION_TYPE);
     this.src = null;
   }
 
-  canJoin() {
+  canJoin () {
     return false;
   }
 
-  get isBlank() {
+  get isBlank () {
     return false;
   }
 
-  get length() {
+  get length () {
     return 1;
   }
 }

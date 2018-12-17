@@ -1,5 +1,5 @@
 export default {
-  hasDOM() {
+  hasDOM () {
     return typeof document !== 'undefined';
-  }
+  },
 };

@@ -13,7 +13,7 @@ export const VALID_MARKUP_SECTION_TAGNAMES = [
   'h4',
   'h5',
   'h6',
-  'p'
+  'p',
 ].map(normalizeTagName);
 
 // valid element names for a MarkupSection. A MarkupSection with a tagName
@@ -28,24 +28,24 @@ export const MARKUP_SECTION_ELEMENT_NAMES = [
   'h4',
   'h5',
   'h6',
-  'p'
+  'p',
 ].map(normalizeTagName);
 export const DEFAULT_TAG_NAME = VALID_MARKUP_SECTION_TAGNAMES[8];
 
 const MarkupSection = class MarkupSection extends Markerable {
-  constructor(tagName=DEFAULT_TAG_NAME, markers=[]) {
+  constructor (tagName = DEFAULT_TAG_NAME, markers = []) {
     super(MARKUP_SECTION_TYPE, tagName, markers);
     this.isMarkupSection = true;
   }
 
-  isValidTagName(normalizedTagName) {
+  isValidTagName (normalizedTagName) {
     return contains(VALID_MARKUP_SECTION_TAGNAMES, normalizedTagName);
   }
 
-  splitAtMarker(marker, offset=0) {
+  splitAtMarker (marker, offset = 0) {
     let [beforeSection, afterSection] = [
       this.builder.createMarkupSection(this.tagName, []),
-      this.builder.createMarkupSection()
+      this.builder.createMarkupSection(),
     ];
 
     return this._redistributeMarkers(beforeSection, afterSection, marker, offset);

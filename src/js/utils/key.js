@@ -1,6 +1,7 @@
 import Keycodes from './keycodes';
 import Keys from './keys';
 import { TAB } from 'mobiledoc-kit/utils/characters';
+import assert from './assert';
 
 /**
  * @typedef Direction
@@ -10,54 +11,53 @@ import { TAB } from 'mobiledoc-kit/utils/characters';
  */
 export const DIRECTION = {
   FORWARD: 1,
-  BACKWARD: -1
+  BACKWARD: -1,
 };
-import assert from './assert';
 
 export const MODIFIERS = {
   META: 1, // also called "command" on OS X
   CTRL: 2,
   SHIFT: 4,
-  ALT: 8   // also called "option" on OS X
+  ALT: 8, // also called "option" on OS X
 };
 
-export function modifierMask(event) {
+export function modifierMask (event) {
   let {
-    metaKey, shiftKey, ctrlKey, altKey
+    metaKey, shiftKey, ctrlKey, altKey,
   } = event;
   let modVal = (val, modifier) => {
     return (val && modifier) || 0;
   };
-  return modVal(metaKey,  MODIFIERS.META) +
+  return modVal(metaKey, MODIFIERS.META) +
          modVal(shiftKey, MODIFIERS.SHIFT) +
-         modVal(ctrlKey,  MODIFIERS.CTRL) +
-         modVal(altKey,   MODIFIERS.ALT);
+         modVal(ctrlKey, MODIFIERS.CTRL) +
+         modVal(altKey, MODIFIERS.ALT);
 }
 
 const SPECIAL_KEYS = {
   BACKSPACE: Keycodes.BACKSPACE,
-  TAB:       Keycodes.TAB,
-  ENTER:     Keycodes.ENTER,
-  ESC:       Keycodes.ESC,
-  SPACE:     Keycodes.SPACE,
-  PAGEUP:    Keycodes.PAGEUP,
-  PAGEDOWN:  Keycodes.PAGEDOWN,
-  END:       Keycodes.END,
-  HOME:      Keycodes.HOME,
-  LEFT:      Keycodes.LEFT,
-  UP:        Keycodes.UP,
-  RIGHT:     Keycodes.RIGHT,
-  DOWN:      Keycodes.DOWN,
-  INS:       Keycodes.INS,
-  DEL:       Keycodes.DELETE
+  TAB: Keycodes.TAB,
+  ENTER: Keycodes.ENTER,
+  ESC: Keycodes.ESC,
+  SPACE: Keycodes.SPACE,
+  PAGEUP: Keycodes.PAGEUP,
+  PAGEDOWN: Keycodes.PAGEDOWN,
+  END: Keycodes.END,
+  HOME: Keycodes.HOME,
+  LEFT: Keycodes.LEFT,
+  UP: Keycodes.UP,
+  RIGHT: Keycodes.RIGHT,
+  DOWN: Keycodes.DOWN,
+  INS: Keycodes.INS,
+  DEL: Keycodes.DELETE,
 };
 
-export function specialCharacterToCode(specialCharacter) {
+export function specialCharacterToCode (specialCharacter) {
   return SPECIAL_KEYS[specialCharacter];
 }
 
 // heuristic for determining if `event` is a key event
-function isKeyEvent(event) {
+function isKeyEvent (event) {
   return /^key/.test(event.type);
 }
 
@@ -67,7 +67,7 @@ function isKeyEvent(event) {
  * to determine what sort of key was pressed
  */
 const Key = class Key {
-  constructor(event) {
+  constructor (event) {
     this.key = event.key;
     this.keyCode = event.keyCode;
     this.charCode = event.charCode;
@@ -75,23 +75,23 @@ const Key = class Key {
     this.modifierMask = modifierMask(event);
   }
 
-  static fromEvent(event) {
+  static fromEvent (event) {
     assert('Must pass a Key event to Key.fromEvent',
-           event && isKeyEvent(event));
+      event && isKeyEvent(event));
     return new Key(event);
   }
 
-  toString() {
+  toString () {
     if (this.isTab()) { return TAB; }
     return String.fromCharCode(this.charCode);
   }
 
   // See https://caniuse.com/#feat=keyboardevent-key for browser support.
-  isKeySupported() {
+  isKeySupported () {
     return this.key;
   }
 
-  isKey(identifier) {
+  isKey (identifier) {
     if (this.isKeySupported()) {
       assert(`Must define Keys.${identifier}.`, Keys[identifier]);
       return this.key === Keys[identifier];
@@ -101,72 +101,72 @@ const Key = class Key {
     }
   }
 
-  isEscape() {
+  isEscape () {
     return this.isKey('ESC');
   }
 
-  isDelete() {
+  isDelete () {
     return this.isKey('BACKSPACE') || this.isForwardDelete();
   }
 
-  isForwardDelete() {
+  isForwardDelete () {
     return this.isKey('DELETE');
   }
 
-  isArrow() {
+  isArrow () {
     return this.isHorizontalArrow() || this.isVerticalArrow();
   }
 
-  isHorizontalArrow() {
+  isHorizontalArrow () {
     return this.isLeftArrow() || this.isRightArrow();
   }
 
-  isHorizontalArrowWithoutModifiersOtherThanShift() {
+  isHorizontalArrowWithoutModifiersOtherThanShift () {
     return this.isHorizontalArrow() &&
       !(this.ctrlKey || this.metaKey || this.altKey);
   }
 
-  isVerticalArrow() {
+  isVerticalArrow () {
     return this.isKey('UP') || this.isKey('DOWN');
   }
 
-  isLeftArrow() {
+  isLeftArrow () {
     return this.isKey('LEFT');
   }
 
-  isRightArrow() {
+  isRightArrow () {
     return this.isKey('RIGHT');
   }
 
-  isHome() {
+  isHome () {
     return this.isKey('HOME');
   }
 
-  isEnd() {
+  isEnd () {
     return this.isKey('END');
   }
 
-  isPageUp() {
+  isPageUp () {
     return this.isKey('PAGEUP');
   }
 
-  isPageDown() {
+  isPageDown () {
     return this.isKey('PAGEDOWN');
   }
 
-  isInsert() {
+  isInsert () {
     return this.isKey('INS');
   }
 
-  isClear() {
+  isClear () {
     return this.isKey('CLEAR');
   }
 
-  isPause() {
+  isPause () {
     return this.isKey('PAUSE');
   }
 
-  isSpace() {
+  isSpace () {
     return this.isKey('SPACE');
   }
 
@@ -177,11 +177,11 @@ const Key = class Key {
   // arise there. Fix this by returning false when the TAB key event includes a
   // modifier.
   // See: https://github.com/bustle/mobiledoc-kit/issues/565
-  isTab() {
+  isTab () {
     return !this.hasAnyModifier() && this.isKey('TAB');
   }
 
-  isEnter() {
+  isEnter () {
     return this.isKey('ENTER');
   }
 
@@ -191,7 +191,7 @@ const Key = class Key {
    * @see {isShift}
    * @return {bool}
    */
-  isShiftKey() {
+  isShiftKey () {
     return this.isKey('SHIFT');
   }
 
@@ -200,7 +200,7 @@ const Key = class Key {
    * is held down and the source `event` is not the alt key.
    * @return {bool}
    */
-  isAltKey() {
+  isAltKey () {
     return this.isKey('ALT');
   }
 
@@ -209,17 +209,17 @@ const Key = class Key {
    * is held down and the source `event` is not the ctrl key.
    * @return {bool}
    */
-  isCtrlKey() {
+  isCtrlKey () {
     return this.isKey('CTRL');
   }
 
-  isIME() {
+  isIME () {
     // FIXME the IME action seems to get lost when we issue an
     // `editor.deleteSelection` before it (in Chrome)
     return this.keyCode === Keycodes.IME;
   }
 
-  get direction() {
+  get direction () {
     switch (true) {
       case this.isDelete():
         return this.isForwardDelete() ? DIRECTION.FORWARD : DIRECTION.BACKWARD;
@@ -236,35 +236,35 @@ const Key = class Key {
    * @see {isShiftKey} which checks if the key is actually the shift key itself.
    * @return {bool}
    */
-  isShift() {
+  isShift () {
     return this.shiftKey;
   }
 
-  hasModifier(modifier) {
+  hasModifier (modifier) {
     return modifier & this.modifierMask;
   }
 
-  hasAnyModifier() {
+  hasAnyModifier () {
     return !!this.modifierMask;
   }
 
-  get ctrlKey() {
+  get ctrlKey () {
     return MODIFIERS.CTRL & this.modifierMask;
   }
 
-  get metaKey() {
+  get metaKey () {
     return MODIFIERS.META & this.modifierMask;
   }
 
-  get shiftKey() {
+  get shiftKey () {
     return MODIFIERS.SHIFT & this.modifierMask;
   }
 
-  get altKey() {
+  get altKey () {
     return MODIFIERS.ALT & this.modifierMask;
   }
 
-  isPrintableKey() {
+  isPrintableKey () {
     return !(
       this.isArrow() ||
       this.isHome() || this.isEnd() ||
@@ -274,7 +274,7 @@ const Key = class Key {
     );
   }
 
-  isNumberKey() {
+  isNumberKey () {
     if (this.isKeySupported()) {
       return this.key >= '0' && this.key <= '9';
     } else {
@@ -284,7 +284,7 @@ const Key = class Key {
     }
   }
 
-  isLetterKey() {
+  isLetterKey () {
     if (this.isKeySupported()) {
       const key = this.key;
       return (key >= 'a' && key <= 'z') ||
@@ -296,7 +296,7 @@ const Key = class Key {
     }
   }
 
-  isPunctuation() {
+  isPunctuation () {
     if (this.isKeySupported()) {
       const key = this.key;
       return (key >= ';' && key <= '`') ||
@@ -312,7 +312,7 @@ const Key = class Key {
    * See https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode#Printable_keys_in_standard_position
    *   and http://stackoverflow.com/a/12467610/137784
    */
-  isPrintable() {
+  isPrintable () {
     if (this.ctrlKey || this.metaKey) {
       return false;
     }
@@ -327,7 +327,7 @@ const Key = class Key {
       this.toString().length > 0 ||
       this.isNumberKey() ||
       this.isSpace() ||
-      this.isTab()   ||
+      this.isTab() ||
       this.isEnter() ||
       this.isLetterKey() ||
       this.isPunctuation() ||

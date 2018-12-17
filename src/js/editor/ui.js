@@ -42,7 +42,7 @@
 
 let defaultShowPrompt = (message, defaultValue, callback) => callback(window.prompt(message, defaultValue));
 
-export function toggleLink(editor, showPrompt=defaultShowPrompt) {
+export function toggleLink (editor, showPrompt = defaultShowPrompt) {
   if (editor.range.isCollapsed) {
     return;
   }
@@ -51,7 +51,7 @@ export function toggleLink(editor, showPrompt=defaultShowPrompt) {
   let defaultUrl = '';
   if (selectedText.indexOf('http') !== -1) { defaultUrl = selectedText; }
 
-  let {range} = editor;
+  let { range } = editor;
   let hasLink = editor.detectMarkupInRange(range, 'a');
 
   if (hasLink) {
@@ -60,7 +60,7 @@ export function toggleLink(editor, showPrompt=defaultShowPrompt) {
     showPrompt('Enter a URL', defaultUrl, url => {
       if (!url) { return; }
 
-      editor.toggleMarkup('a', {href: url});
+      editor.toggleMarkup('a', { href: url });
     });
   }
 }

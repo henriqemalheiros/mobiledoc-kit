@@ -1,9 +1,9 @@
 import assert from '../utils/assert';
 
 export default class CardNode {
-  constructor(editor, card, section, element, options) {
-    this.editor  = editor;
-    this.card    = card;
+  constructor (editor, card, section, element, options) {
+    this.editor = editor;
+    this.card = card;
     this.section = section;
     this.element = element;
     this.options = options;
@@ -11,10 +11,10 @@ export default class CardNode {
     this.mode = null;
 
     this._teardownCallback = null;
-    this._rendered         = null;
+    this._rendered = null;
   }
 
-  render(mode) {
+  render (mode) {
     if (this.mode === mode) { return; }
 
     this.teardown();
@@ -25,17 +25,17 @@ export default class CardNode {
     method = this.card[method];
 
     assert(`Card is missing "${method}" (tried to render mode: "${mode}")`,
-           !!method);
+      !!method);
     let rendered = method({
       env: this.env,
       options: this.options,
-      payload: this.section.payload
+      payload: this.section.payload,
     });
 
     this._validateAndAppendRenderResult(rendered);
   }
 
-  teardown() {
+  teardown () {
     if (this._teardownCallback) {
       this._teardownCallback();
       this._teardownCallback = null;
@@ -46,20 +46,24 @@ export default class CardNode {
     }
   }
 
-  didRender() {
+  didRender () {
     if (this._didRenderCallback) {
       this._didRenderCallback();
     }
   }
 
-  get env() {
+  get env () {
     return {
       name: this.card.name,
       isInEditor: true,
-      onTeardown: (callback) => this._teardownCallback = callback,
-      didRender: (callback) => this._didRenderCallback = callback,
+      onTeardown: (callback) => {
+        this._teardownCallback = callback;
+      },
+      didRender: (callback) => {
+        this._didRenderCallback = callback;
+      },
       edit: () => this.edit(),
-      save: (payload, transition=true) => {
+      save: (payload, transition = true) => {
         this.section.payload = payload;
 
         this.editor._postDidChange();
@@ -69,23 +73,23 @@ export default class CardNode {
       },
       cancel: () => this.display(),
       remove: () => this.remove(),
-      postModel: this.section
+      postModel: this.section,
     };
   }
 
-  display() {
+  display () {
     this.render('display');
   }
 
-  edit() {
+  edit () {
     this.render('edit');
   }
 
-  remove() {
+  remove () {
     this.editor.run(postEditor => postEditor.removeSection(this.section));
   }
 
-  _validateAndAppendRenderResult(rendered) {
+  _validateAndAppendRenderResult (rendered) {
     if (!rendered) {
       return;
     }

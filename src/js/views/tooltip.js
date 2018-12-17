@@ -2,13 +2,13 @@ import View from './view';
 import {
   positionElementCenteredBelow,
   getEventTargetMatchingTag,
-  whenElementIsNotInDOM
+  whenElementIsNotInDOM,
 } from '../utils/element-utils';
 
 const DELAY = 200;
 
 export default class Tooltip extends View {
-  constructor(options) {
+  constructor (options) {
     let { rootElement } = options;
     let timeout;
     options.classNames = ['__mobiledoc-tooltip'];
@@ -22,7 +22,7 @@ export default class Tooltip extends View {
         }, DELAY);
       }
     });
-    
+
     this.addEventListener(rootElement, 'mouseout', (e) => {
       clearTimeout(timeout);
       if (this.elementObserver) { this.elementObserver.cancel(); }
@@ -33,14 +33,14 @@ export default class Tooltip extends View {
     });
   }
 
-  showMessage(message, element) {
+  showMessage (message, element) {
     let tooltipElement = this.element;
     tooltipElement.innerHTML = message;
     this.show();
     positionElementCenteredBelow(tooltipElement, element);
   }
 
-  showLink(link, element) {
+  showLink (link, element) {
     let message = `<a href="${link}" target="_blank">${link}</a>`;
     this.showMessage(message, element);
     this.elementObserver = whenElementIsNotInDOM(element, () => this.hide());

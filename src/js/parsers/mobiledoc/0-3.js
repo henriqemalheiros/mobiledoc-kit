@@ -4,16 +4,16 @@ import {
   MOBILEDOC_LIST_SECTION_TYPE,
   MOBILEDOC_CARD_SECTION_TYPE,
   MOBILEDOC_MARKUP_MARKER_TYPE,
-  MOBILEDOC_ATOM_MARKER_TYPE
+  MOBILEDOC_ATOM_MARKER_TYPE,
 } from 'mobiledoc-kit/renderers/mobiledoc/0-3';
-import { kvArrayToObject, filter } from "../../utils/array-utils";
+import { kvArrayToObject, filter } from '../../utils/array-utils';
 import assert from 'mobiledoc-kit/utils/assert';
 
 /*
  * Parses from mobiledoc -> post
  */
 export default class MobiledocParser {
-  constructor(builder) {
+  constructor (builder) {
     this.builder = builder;
   }
 
@@ -21,7 +21,7 @@ export default class MobiledocParser {
    * @param {Mobiledoc}
    * @return {Post}
    */
-  parse({ sections, markups: markerTypes, cards: cardTypes, atoms: atomTypes }) {
+  parse ({ sections, markups: markerTypes, cards: cardTypes, atoms: atomTypes }) {
     try {
       const post = this.builder.createPost();
 
@@ -37,38 +37,38 @@ export default class MobiledocParser {
     }
   }
 
-  parseMarkerTypes(markerTypes) {
+  parseMarkerTypes (markerTypes) {
     return markerTypes.map((markerType) => this.parseMarkerType(markerType));
   }
 
-  parseMarkerType([tagName, attributesArray]) {
+  parseMarkerType ([tagName, attributesArray]) {
     const attributesObject = kvArrayToObject(attributesArray || []);
     return this.builder.createMarkup(tagName, attributesObject);
   }
 
-  parseCardTypes(cardTypes) {
+  parseCardTypes (cardTypes) {
     return cardTypes.map((cardType) => this.parseCardType(cardType));
   }
 
-  parseCardType([cardName, cardPayload]) {
+  parseCardType ([cardName, cardPayload]) {
     return [cardName, cardPayload];
   }
 
-  parseAtomTypes(atomTypes) {
+  parseAtomTypes (atomTypes) {
     return atomTypes.map((atomType) => this.parseAtomType(atomType));
   }
 
-  parseAtomType([atomName, atomValue, atomPayload]) {
+  parseAtomType ([atomName, atomValue, atomPayload]) {
     return [atomName, atomValue, atomPayload];
   }
 
-  parseSections(sections, post) {
+  parseSections (sections, post) {
     sections.forEach((section) => this.parseSection(section, post));
   }
 
-  parseSection(section, post) {
+  parseSection (section, post) {
     let [type] = section;
-    switch(type) {
+    switch (type) {
       case MOBILEDOC_MARKUP_SECTION_TYPE:
         this.parseMarkupSection(section, post);
         break;
@@ -82,34 +82,34 @@ export default class MobiledocParser {
         this.parseListSection(section, post);
         break;
       default:
-        assert('Unexpected section type ${type}', false);
+        assert(`Unexpected section type ${type}`, false);
     }
   }
 
-  getAtomTypeFromIndex(index) {
+  getAtomTypeFromIndex (index) {
     const atomType = this.atomTypes[index];
     assert(`No atom definition found at index ${index}`, !!atomType);
     return atomType;
   }
 
-  getCardTypeFromIndex(index) {
+  getCardTypeFromIndex (index) {
     const cardType = this.cardTypes[index];
     assert(`No card definition found at index ${index}`, !!cardType);
     return cardType;
   }
 
-  parseCardSection([, cardIndex], post) {
+  parseCardSection ([, cardIndex], post) {
     const [name, payload] = this.getCardTypeFromIndex(cardIndex);
     const section = this.builder.createCardSection(name, payload);
     post.sections.append(section);
   }
 
-  parseImageSection([, src], post) {
+  parseImageSection ([, src], post) {
     const section = this.builder.createImageSection(src);
     post.sections.append(section);
   }
 
-  parseMarkupSection([, tagName, markers], post) {
+  parseMarkupSection ([, tagName, markers], post) {
     const section = this.builder.createMarkupSection(tagName.toLowerCase() === 'pull-quote' ? 'aside' : tagName);
     post.sections.append(section);
     this.parseMarkers(markers, section);
@@ -120,27 +120,27 @@ export default class MobiledocParser {
     });
   }
 
-  parseListSection([, tagName, items], post) {
+  parseListSection ([, tagName, items], post) {
     const section = this.builder.createListSection(tagName);
     post.sections.append(section);
     this.parseListItems(items, section);
   }
 
-  parseListItems(items, section) {
+  parseListItems (items, section) {
     items.forEach(i => this.parseListItem(i, section));
   }
 
-  parseListItem(markers, section) {
+  parseListItem (markers, section) {
     const item = this.builder.createListItem();
     this.parseMarkers(markers, item);
     section.items.append(item);
   }
 
-  parseMarkers(markers, parent) {
+  parseMarkers (markers, parent) {
     markers.forEach(m => this.parseMarker(m, parent));
   }
 
-  parseMarker([type, markerTypeIndexes, closeCount, value], parent) {
+  parseMarker ([type, markerTypeIndexes, closeCount, value], parent) {
     markerTypeIndexes.forEach(index => {
       this.markups.push(this.markerTypes[index]);
     });
@@ -148,10 +148,10 @@ export default class MobiledocParser {
     const marker = this.buildMarkerType(type, value);
     parent.markers.append(marker);
 
-    this.markups = this.markups.slice(0, this.markups.length-closeCount);
+    this.markups = this.markups.slice(0, this.markups.length - closeCount);
   }
 
-  buildMarkerType(type, value) {
+  buildMarkerType (type, value) {
     switch (type) {
       case MOBILEDOC_MARKUP_MARKER_TYPE:
         return this.builder.createMarker(value, this.markups.slice());

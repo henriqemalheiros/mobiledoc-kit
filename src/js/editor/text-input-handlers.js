@@ -7,7 +7,7 @@
  * @param {String} listTagName ("ul" or "ol")
  * @public
  */
-export function replaceWithListSection(editor, listTagName) {
+export function replaceWithListSection (editor, listTagName) {
   let { range: { head, head: { section } } } = editor;
   // Skip if cursor is not at end of section
   if (!head.isTail()) {
@@ -36,7 +36,7 @@ export function replaceWithListSection(editor, listTagName) {
  * @param {String} headingTagName ('h1', 'h2', 'h3', 'h4', 'h5', 'h6')
  * @public
  */
-export function replaceWithHeaderSection(editor, headingTagName) {
+export function replaceWithHeaderSection (editor, headingTagName) {
   let { range: { head, head: { section } } } = editor;
   // Skip if cursor is not at end of section
   if (!head.isTail()) {
@@ -56,17 +56,17 @@ export const DEFAULT_TEXT_INPUT_HANDLERS = [
     name: 'ul',
     // "* " -> ul
     match: /^\* $/,
-    run(editor) {
+    run (editor) {
       replaceWithListSection(editor, 'ul');
-    }
+    },
   },
   {
     name: 'ol',
     // "1" -> ol, "1." -> ol
     match: /^1\.? $/,
-    run(editor) {
+    run (editor) {
       replaceWithListSection(editor, 'ol');
-    }
+    },
   },
   {
     name: 'heading',
@@ -79,10 +79,10 @@ export const DEFAULT_TEXT_INPUT_HANDLERS = [
      * "###### " -> h6
      */
     match: /^(#{1,6}) $/,
-    run(editor, matches) {
+    run (editor, matches) {
       let capture = matches[1];
       let headingTag = 'h' + capture.length;
       replaceWithHeaderSection(editor, headingTag);
-    }
-  }
+    },
+  },
 ];

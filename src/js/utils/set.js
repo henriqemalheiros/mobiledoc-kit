@@ -1,24 +1,24 @@
 export default class Set {
-  constructor(items=[]) {
+  constructor (items = []) {
     this.items = [];
     items.forEach(i => this.add(i));
   }
 
-  add(item) {
+  add (item) {
     if (!this.has(item)) {
       this.items.push(item);
     }
   }
 
-  get length() {
+  get length () {
     return this.items.length;
   }
 
-  has(item) {
+  has (item) {
     return this.items.indexOf(item) !== -1;
   }
 
-  toArray() {
+  toArray () {
     return this.items;
   }
 }

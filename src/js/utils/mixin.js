@@ -1,6 +1,6 @@
 const CONSTRUCTOR_FN_NAME = 'constructor';
 
-export default function mixin(target, source) {
+export default function mixin (target, source) {
   target = target.prototype;
   // Fallback to just `source` to allow mixing in a plain object (pojo)
   source = source.prototype || source;

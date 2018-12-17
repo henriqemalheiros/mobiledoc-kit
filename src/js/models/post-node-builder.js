@@ -1,7 +1,5 @@
 import Atom from '../models/atom';
 import Post from '../models/post';
-import MarkupSection from '../models/markup-section';
-import ListSection from '../models/list-section';
 import ListItem from '../models/list-item';
 import ImageSection from '../models/image';
 import Marker from '../models/marker';
@@ -11,25 +9,27 @@ import { normalizeTagName } from '../utils/dom-utils';
 import { objectToSortedKVArray } from '../utils/array-utils';
 import {
   LIST_ITEM_TYPE,
-  MARKUP_SECTION_TYPE
+  MARKUP_SECTION_TYPE,
 } from '../models/types';
 import {
-  DEFAULT_TAG_NAME as DEFAULT_MARKUP_SECTION_TAG_NAME
+  MarkupSection,
+  DEFAULT_TAG_NAME as DEFAULT_MARKUP_SECTION_TAG_NAME,
 } from '../models/markup-section';
 import {
-  DEFAULT_TAG_NAME as DEFAULT_LIST_SECTION_TAG_NAME
+  ListSection,
+  DEFAULT_TAG_NAME as DEFAULT_LIST_SECTION_TAG_NAME,
 } from '../models/list-section';
 import assert from '../utils/assert';
 
-function cacheKey(tagName, attributes) {
+function cacheKey (tagName, attributes) {
   return `${normalizeTagName(tagName)}-${objectToSortedKVArray(attributes).join('-')}`;
 }
 
-function addMarkupToCache(cache, markup) {
+function addMarkupToCache (cache, markup) {
   cache[cacheKey(markup.tagName, markup.attributes)] = markup;
 }
 
-function findMarkupInCache(cache, tagName, attributes) {
+function findMarkupInCache (cache, tagName, attributes) {
   const key = cacheKey(tagName, attributes);
   return cache[key];
 }
@@ -46,14 +46,14 @@ class PostNodeBuilder {
   /**
    * @private
    */
-  constructor() {
+  constructor () {
     this.markupCache = {};
   }
 
   /**
    * @return {Post} A new, blank post
    */
-  createPost(sections=[]) {
+  createPost (sections = []) {
     const post = new Post();
     post.builder = this;
 
@@ -62,7 +62,7 @@ class PostNodeBuilder {
     return post;
   }
 
-  createMarkerableSection(type, tagName, markers=[]) {
+  createMarkerableSection (type, tagName, markers = []) {
     switch (type) {
       case LIST_ITEM_TYPE:
         return this.createListItem(markers);
@@ -78,7 +78,7 @@ class PostNodeBuilder {
    * @param {Marker[]} [markers=[]]
    * @return {MarkupSection}
    */
-  createMarkupSection(tagName=DEFAULT_MARKUP_SECTION_TAG_NAME, markers=[], isGenerated=false) {
+  createMarkupSection (tagName = DEFAULT_MARKUP_SECTION_TAG_NAME, markers = [], isGenerated = false) {
     tagName = normalizeTagName(tagName);
     const section = new MarkupSection(tagName, markers);
     if (isGenerated) {
@@ -88,21 +88,21 @@ class PostNodeBuilder {
     return section;
   }
 
-  createListSection(tagName=DEFAULT_LIST_SECTION_TAG_NAME, items=[]) {
+  createListSection (tagName = DEFAULT_LIST_SECTION_TAG_NAME, items = []) {
     tagName = normalizeTagName(tagName);
     const section = new ListSection(tagName, items);
     section.builder = this;
     return section;
   }
 
-  createListItem(markers=[]) {
+  createListItem (markers = []) {
     const tagName = normalizeTagName('li');
     const item = new ListItem(tagName, markers);
     item.builder = this;
     return item;
   }
 
-  createImageSection(url) {
+  createImageSection (url) {
     let section = new ImageSection();
     if (url) {
       section.src = url;
@@ -115,7 +115,7 @@ class PostNodeBuilder {
    * @param {Object} [payload={}]
    * @return {CardSection}
    */
-  createCardSection(name, payload={}) {
+  createCardSection (name, payload = {}) {
     const card = new Card(name, payload);
     card.builder = this;
     return card;
@@ -126,7 +126,7 @@ class PostNodeBuilder {
    * @param {Markup[]} [markups=[]]
    * @return {Marker}
    */
-  createMarker(value, markups=[]) {
+  createMarker (value, markups = []) {
     const marker = new Marker(value, markups);
     marker.builder = this;
     return marker;
@@ -139,7 +139,7 @@ class PostNodeBuilder {
    * @param {Markup[]} [markups=[]]
    * @return {Atom}
    */
-  createAtom(name, value='', payload={}, markups=[]) {
+  createAtom (name, value = '', payload = {}, markups = []) {
     const atom = new Atom(name, value, payload, markups);
     atom.builder = this;
     return atom;
@@ -150,7 +150,7 @@ class PostNodeBuilder {
    * @param {Object} attributes Key-value pairs of attributes for the markup
    * @return {Markup}
    */
-  createMarkup(tagName, attributes={}) {
+  createMarkup (tagName, attributes = {}) {
     tagName = normalizeTagName(tagName);
 
     let markup = findMarkupInCache(this.markupCache, tagName, attributes);

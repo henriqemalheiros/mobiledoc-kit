@@ -3,13 +3,13 @@ import LinkedItem from '../utils/linked-item';
 import assert from '../utils/assert';
 import Position from '../utils/cursor/position';
 
-function unimplementedMethod(methodName, me) {
+function unimplementedMethod (methodName, me) {
   assert(`\`${methodName}()\` must be implemented by ${me.constructor.name}`,
-         false);
+    false);
 }
 
 export default class Section extends LinkedItem {
-  constructor(type) {
+  constructor (type) {
     super();
     assert('Cannot create section without type', !!type);
     this.type = type;
@@ -20,34 +20,34 @@ export default class Section extends LinkedItem {
     this.isLeafSection = true;
   }
 
-  set tagName(val) {
+  set tagName (val) {
     let normalizedTagName = normalizeTagName(val);
     assert(`Cannot set section tagName to ${val}`,
-           this.isValidTagName(normalizedTagName));
+      this.isValidTagName(normalizedTagName));
     this._tagName = normalizedTagName;
   }
 
-  get tagName() {
+  get tagName () {
     return this._tagName;
   }
 
-  isValidTagName(/* normalizedTagName */) {
+  isValidTagName (/* normalizedTagName */) {
     unimplementedMethod('isValidTagName', this);
   }
 
-  get length() {
+  get length () {
     return 0;
   }
 
-  get isBlank() {
+  get isBlank () {
     unimplementedMethod('isBlank', this);
   }
 
-  clone() {
+  clone () {
     unimplementedMethod('clone', this);
   }
 
-  canJoin(/* otherSection */) {
+  canJoin (/* otherSection */) {
     unimplementedMethod('canJoin', this);
   }
 
@@ -55,7 +55,7 @@ export default class Section extends LinkedItem {
    * @return {Position} The position at the start of this section
    * @public
    */
-  headPosition() {
+  headPosition () {
     return this.toPosition(0);
   }
 
@@ -63,7 +63,7 @@ export default class Section extends LinkedItem {
    * @return {Position} The position at the end of this section
    * @public
    */
-  tailPosition() {
+  tailPosition () {
     return this.toPosition(this.length);
   }
 
@@ -72,9 +72,9 @@ export default class Section extends LinkedItem {
    * @return {Position} The position in this section at the given offset
    * @public
    */
-  toPosition(offset) {
-    assert("Must pass number to `toPosition`", typeof offset === 'number');
-    assert("Cannot call `toPosition` with offset > length", offset <= this.length);
+  toPosition (offset) {
+    assert('Must pass number to `toPosition`', typeof offset === 'number');
+    assert('Cannot call `toPosition` with offset > length', offset <= this.length);
 
     return new Position(this, offset);
   }
@@ -83,27 +83,27 @@ export default class Section extends LinkedItem {
    * @return {Range} A range from this section's head to tail positions
    * @public
    */
-  toRange() {
+  toRange () {
     return this.headPosition().toRange(this.tailPosition());
   }
 
-  join() {
+  join () {
     unimplementedMethod('join', this);
   }
 
-  textUntil(/* position */) {
+  textUntil (/* position */) {
     return '';
   }
 
   /**
    * Markerable sections should override this method
    */
-  splitMarkerAtOffset() {
+  splitMarkerAtOffset () {
     let blankEdit = { added: [], removed: [] };
     return blankEdit;
   }
 
-  nextLeafSection() {
+  nextLeafSection () {
     const next = this.next;
     if (next) {
       if (next.items) {
@@ -118,7 +118,7 @@ export default class Section extends LinkedItem {
     }
   }
 
-  immediatelyNextMarkerableSection() {
+  immediatelyNextMarkerableSection () {
     let next = this.nextLeafSection();
     while (next && !next.isMarkerable) {
       next = next.nextLeafSection();
@@ -126,7 +126,7 @@ export default class Section extends LinkedItem {
     return next;
   }
 
-  previousLeafSection() {
+  previousLeafSection () {
     const prev = this.prev;
 
     if (prev) {

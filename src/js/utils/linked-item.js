@@ -1,5 +1,5 @@
 export default class LinkedItem {
-  constructor() {
+  constructor () {
     this.next = null;
     this.prev = null;
   }

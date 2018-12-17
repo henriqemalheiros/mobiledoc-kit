@@ -1,6 +1,6 @@
-function mergeWithOptions(original, updates, options) {
+function mergeWithOptions (original, updates, options) {
   options = options || {};
-  for(var prop in updates) {
+  for (var prop in updates) {
     if (options.hasOwnProperty(prop)) {
       original[prop] = options[prop];
     } else if (updates.hasOwnProperty(prop)) {
@@ -14,7 +14,7 @@ function mergeWithOptions(original, updates, options) {
  * Merges properties of one object into another
  * @private
  */
-function merge(original, updates) {
+function merge (original, updates) {
   return mergeWithOptions(original, updates);
 }
 

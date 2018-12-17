@@ -1,4 +1,4 @@
-import {visit, visitArray, compile} from '../../utils/compiler';
+import { visit, visitArray, compile } from '../../utils/compiler';
 import { objectToSortedKVArray } from '../../utils/array-utils';
 import {
   POST_TYPE,
@@ -9,7 +9,7 @@ import {
   MARKUP_TYPE,
   IMAGE_SECTION_TYPE,
   CARD_TYPE,
-  ATOM_TYPE
+  ATOM_TYPE,
 } from '../../models/types';
 
 export const MOBILEDOC_VERSION = '0.3.1';
@@ -22,81 +22,81 @@ export const MOBILEDOC_MARKUP_MARKER_TYPE = 0;
 export const MOBILEDOC_ATOM_MARKER_TYPE = 1;
 
 const visitor = {
-  [POST_TYPE](node, opcodes) {
+  [POST_TYPE] (node, opcodes) {
     opcodes.push(['openPost']);
     visitArray(visitor, node.sections, opcodes);
   },
-  [MARKUP_SECTION_TYPE](node, opcodes) {
+  [MARKUP_SECTION_TYPE] (node, opcodes) {
     opcodes.push(['openMarkupSection', node.tagName]);
     visitArray(visitor, node.markers, opcodes);
   },
-  [LIST_SECTION_TYPE](node, opcodes) {
+  [LIST_SECTION_TYPE] (node, opcodes) {
     opcodes.push(['openListSection', node.tagName]);
     visitArray(visitor, node.items, opcodes);
   },
-  [LIST_ITEM_TYPE](node, opcodes) {
+  [LIST_ITEM_TYPE] (node, opcodes) {
     opcodes.push(['openListItem']);
     visitArray(visitor, node.markers, opcodes);
   },
-  [IMAGE_SECTION_TYPE](node, opcodes) {
+  [IMAGE_SECTION_TYPE] (node, opcodes) {
     opcodes.push(['openImageSection', node.src]);
   },
-  [CARD_TYPE](node, opcodes) {
+  [CARD_TYPE] (node, opcodes) {
     opcodes.push(['openCardSection', node.name, node.payload]);
   },
-  [MARKER_TYPE](node, opcodes) {
+  [MARKER_TYPE] (node, opcodes) {
     opcodes.push(['openMarker', node.closedMarkups.length, node.value]);
     visitArray(visitor, node.openedMarkups, opcodes);
   },
-  [MARKUP_TYPE](node, opcodes) {
+  [MARKUP_TYPE] (node, opcodes) {
     opcodes.push(['openMarkup', node.tagName, objectToSortedKVArray(node.attributes)]);
   },
-  [ATOM_TYPE](node, opcodes) {
+  [ATOM_TYPE] (node, opcodes) {
     opcodes.push(['openAtom', node.closedMarkups.length, node.name, node.value, node.payload]);
     visitArray(visitor, node.openedMarkups, opcodes);
-  }
+  },
 };
 
 const postOpcodeCompiler = {
-  openMarker(closeCount, value) {
+  openMarker (closeCount, value) {
     this.markupMarkerIds = [];
     this.markers.push([
       MOBILEDOC_MARKUP_MARKER_TYPE,
       this.markupMarkerIds,
       closeCount,
-      value || ''
+      value || '',
     ]);
   },
-  openMarkupSection(tagName) {
+  openMarkupSection (tagName) {
     this.markers = [];
     this.sections.push([MOBILEDOC_MARKUP_SECTION_TYPE, tagName, this.markers]);
   },
-  openListSection(tagName) {
+  openListSection (tagName) {
     this.items = [];
     this.sections.push([MOBILEDOC_LIST_SECTION_TYPE, tagName, this.items]);
   },
-  openListItem() {
+  openListItem () {
     this.markers = [];
     this.items.push(this.markers);
   },
-  openImageSection(url) {
+  openImageSection (url) {
     this.sections.push([MOBILEDOC_IMAGE_SECTION_TYPE, url]);
   },
-  openCardSection(name, payload) {
+  openCardSection (name, payload) {
     const index = this._addCardTypeIndex(name, payload);
     this.sections.push([MOBILEDOC_CARD_SECTION_TYPE, index]);
   },
-  openAtom(closeCount, name, value, payload) {
+  openAtom (closeCount, name, value, payload) {
     const index = this._addAtomTypeIndex(name, value, payload);
     this.markupMarkerIds = [];
     this.markers.push([
       MOBILEDOC_ATOM_MARKER_TYPE,
       this.markupMarkerIds,
       closeCount,
-      index
+      index,
     ]);
   },
-  openPost() {
+  openPost () {
     this.atomTypes = [];
     this.cardTypes = [];
     this.markerTypes = [];
@@ -106,24 +106,24 @@ const postOpcodeCompiler = {
       atoms: this.atomTypes,
       cards: this.cardTypes,
       markups: this.markerTypes,
-      sections: this.sections
+      sections: this.sections,
     };
   },
-  openMarkup(tagName, attributes) {
+  openMarkup (tagName, attributes) {
     const index = this._findOrAddMarkerTypeIndex(tagName, attributes);
     this.markupMarkerIds.push(index);
   },
-  _addCardTypeIndex(cardName, payload) {
+  _addCardTypeIndex (cardName, payload) {
     let cardType = [cardName, payload];
     this.cardTypes.push(cardType);
     return this.cardTypes.length - 1;
   },
-  _addAtomTypeIndex(atomName, atomValue, payload) {
+  _addAtomTypeIndex (atomName, atomValue, payload) {
     let atomType = [atomName, atomValue, payload];
     this.atomTypes.push(atomType);
     return this.atomTypes.length - 1;
   },
-  _findOrAddMarkerTypeIndex(tagName, attributesArray) {
+  _findOrAddMarkerTypeIndex (tagName, attributesArray) {
     if (!this._markerTypeCache) { this._markerTypeCache = {}; }
     const key = `${tagName}-${attributesArray.join('-')}`;
 
@@ -133,12 +133,12 @@ const postOpcodeCompiler = {
       if (attributesArray.length) { markerType.push(attributesArray); }
       this.markerTypes.push(markerType);
 
-      index =  this.markerTypes.length - 1;
+      index = this.markerTypes.length - 1;
       this._markerTypeCache[key] = index;
     }
 
     return index;
-  }
+  },
 };
 
 /**
@@ -149,11 +149,11 @@ export default {
    * @param {Post}
    * @return {Mobiledoc}
    */
-  render(post) {
+  render (post) {
     let opcodes = [];
     visit(visitor, post, opcodes);
     let compiler = Object.create(postOpcodeCompiler);
     compile(compiler, opcodes);
     return compiler.result;
-  }
+  },
 };

@@ -4,7 +4,7 @@ import { shallowCopyObject } from '../utils/copy';
 
 export const CARD_MODES = {
   DISPLAY: 'display',
-  EDIT: 'edit'
+  EDIT: 'edit',
 };
 
 const CARD_LENGTH = 1;
@@ -12,7 +12,7 @@ const CARD_LENGTH = 1;
 const DEFAULT_INITIAL_MODE = CARD_MODES.DISPLAY;
 
 export default class Card extends Section {
-  constructor(name, payload) {
+  constructor (name, payload) {
     super(CARD_TYPE);
     this.name = name;
     this.payload = payload;
@@ -20,19 +20,19 @@ export default class Card extends Section {
     this.isCardSection = true;
   }
 
-  get isBlank() {
+  get isBlank () {
     return false;
   }
 
-  canJoin() {
+  canJoin () {
     return false;
   }
 
-  get length() {
+  get length () {
     return CARD_LENGTH;
   }
 
-  clone() {
+  clone () {
     let payload = shallowCopyObject(this.payload);
     let card = this.builder.createCardSection(this.name, payload);
     // If this card is currently rendered, clone the mode it is
@@ -49,7 +49,7 @@ export default class Card extends Section {
    * set the mode that this will be rendered into initially
    * @private
    */
-  setInitialMode(initialMode) {
+  setInitialMode (initialMode) {
     // TODO validate initialMode
     this._initialMode = initialMode;
   }

@@ -1,24 +1,24 @@
 import {
   DEFAULT_TAG_NAME,
-  VALID_MARKUP_SECTION_TAGNAMES
+  VALID_MARKUP_SECTION_TAGNAMES,
 } from 'mobiledoc-kit/models/markup-section';
 
 import {
-  VALID_LIST_SECTION_TAGNAMES
+  VALID_LIST_SECTION_TAGNAMES,
 } from 'mobiledoc-kit/models/list-section';
 
 import {
-  VALID_LIST_ITEM_TAGNAMES
+  VALID_LIST_ITEM_TAGNAMES,
 } from 'mobiledoc-kit/models/list-item';
 
 import {
   LIST_SECTION_TYPE,
   LIST_ITEM_TYPE,
-  MARKUP_SECTION_TYPE
+  MARKUP_SECTION_TYPE,
 } from 'mobiledoc-kit/models/types';
 
 import {
-  VALID_MARKUP_TAGNAMES
+  VALID_MARKUP_TAGNAMES,
 } from 'mobiledoc-kit/models/markup';
 
 import {
@@ -26,26 +26,26 @@ import {
   normalizeTagName,
   isTextNode,
   isCommentNode,
-  NODE_TYPES
+  NODE_TYPES,
 } from 'mobiledoc-kit/utils/dom-utils';
 
 import {
   forEach,
-  contains
+  contains,
 } from 'mobiledoc-kit/utils/array-utils';
 
 import {
-  transformHTMLText
+  transformHTMLText,
 } from '../parsers/dom';
 
 import assert from '../utils/assert';
 
 const SKIPPABLE_ELEMENT_TAG_NAMES = [
-  'style', 'head', 'title', 'meta'
+  'style', 'head', 'title', 'meta',
 ].map(normalizeTagName);
 
 const NEWLINES = /\n/g;
-function sanitize(text) {
+function sanitize (text) {
   return text.replace(NEWLINES, ' ');
 }
 
@@ -55,12 +55,12 @@ function sanitize(text) {
  * @private
  */
 class SectionParser {
-  constructor(builder, options={}) {
+  constructor (builder, options = {}) {
     this.builder = builder;
     this.plugins = options.plugins || [];
   }
 
-  parse(element) {
+  parse (element) {
     if (this._isSkippable(element)) {
       return [];
     }
@@ -94,7 +94,7 @@ class SectionParser {
     return this.sections;
   }
 
-  parseListItems(childNodes) {
+  parseListItems (childNodes) {
     let { state } = this;
     forEach(childNodes, el => {
       let parsed = new this.constructor(this.builder).parse(el);
@@ -105,7 +105,7 @@ class SectionParser {
     });
   }
 
-  runPlugins(node) {
+  runPlugins (node) {
     let isNodeFinished = false;
     let env = {
       addSection: (section) => {
@@ -124,11 +124,11 @@ class SectionParser {
         }
         section.markers.append(marker);
       },
-      nodeFinished() {
+      nodeFinished () {
         isNodeFinished = true;
-      }
+      },
     };
-    for (let i=0; i<this.plugins.length; i++) {
+    for (let i = 0; i < this.plugins.length; i++) {
       let plugin = this.plugins[i];
       plugin(node, this.builder, env);
       if (isNodeFinished) {
@@ -138,7 +138,7 @@ class SectionParser {
     return false;
   }
 
-  parseNode(node) {
+  parseNode (node) {
     if (!this.state.section) {
       this._updateStateFromElement(node);
     }
@@ -158,7 +158,7 @@ class SectionParser {
     }
   }
 
-  parseElementNode(element) {
+  parseElementNode (element) {
     let { state } = this;
 
     const markups = this._markupsFromElement(element);
@@ -180,19 +180,19 @@ class SectionParser {
     state.markups.splice(-markups.length, markups.length);
   }
 
-  parseTextNode(textNode) {
+  parseTextNode (textNode) {
     let { state } = this;
     state.text += sanitize(textNode.textContent);
   }
 
-  _updateStateFromElement(element) {
+  _updateStateFromElement (element) {
     let { state } = this;
     state.section = this._createSectionFromElement(element);
     state.markups = this._markupsFromElement(element);
     state.text = '';
   }
 
-  _closeCurrentSection() {
+  _closeCurrentSection () {
     let { sections, state } = this;
 
     if (!state.section) {
@@ -208,7 +208,7 @@ class SectionParser {
     state.section = null;
   }
 
-  _markupsFromElement(element) {
+  _markupsFromElement (element) {
     let { builder } = this;
     let markups = [];
     if (isTextNode(element)) {
@@ -227,7 +227,7 @@ class SectionParser {
     return markups;
   }
 
-  _isValidMarkupForElement(tagName, element) {
+  _isValidMarkupForElement (tagName, element) {
     if (VALID_MARKUP_TAGNAMES.indexOf(tagName) === -1) {
       return false;
     } else if (tagName === 'b') {
@@ -238,7 +238,7 @@ class SectionParser {
     return true;
   }
 
-  _markupsFromElementStyle(element) {
+  _markupsFromElementStyle (element) {
     let { builder } = this;
     let markups = [];
     let { fontStyle, fontWeight } = element.style;
@@ -251,7 +251,7 @@ class SectionParser {
     return markups;
   }
 
-  _createMarker() {
+  _createMarker () {
     let { state } = this;
     let text = transformHTMLText(state.text);
     let marker = this.builder.createMarker(text, state.markups);
@@ -259,10 +259,12 @@ class SectionParser {
     state.text = '';
   }
 
-  _getSectionDetails(element) {
-    let sectionType,
-        tagName,
-        inferredTagName = false;
+  _getSectionDetails (element) {
+    let sectionType;
+
+    let tagName;
+
+    let inferredTagName = false;
     if (isTextNode(element)) {
       tagName = DEFAULT_TAG_NAME;
       sectionType = MARKUP_SECTION_TYPE;
@@ -283,14 +285,14 @@ class SectionParser {
       }
     }
 
-    return {sectionType, tagName, inferredTagName};
+    return { sectionType, tagName, inferredTagName };
   }
 
-  _createSectionFromElement(element) {
+  _createSectionFromElement (element) {
     let { builder } = this;
 
     let section;
-    let {tagName, sectionType, inferredTagName} =
+    let { tagName, sectionType, inferredTagName } =
       this._getSectionDetails(element);
 
     switch (sectionType) {
@@ -311,11 +313,11 @@ class SectionParser {
     return section;
   }
 
-  _isSkippable(element) {
+  _isSkippable (element) {
     return isCommentNode(element) ||
            (element.nodeType === NODE_TYPES.ELEMENT &&
             contains(SKIPPABLE_ELEMENT_TAG_NAMES,
-                    normalizeTagName(element.tagName)));
+              normalizeTagName(element.tagName)));
   }
 }
 

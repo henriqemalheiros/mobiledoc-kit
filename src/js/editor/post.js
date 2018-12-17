@@ -11,14 +11,14 @@ import toRange from 'mobiledoc-kit/utils/to-range';
 
 const { FORWARD, BACKWARD } = DIRECTION;
 
-function isListSectionTagName(tagName) {
+function isListSectionTagName (tagName) {
   return tagName === 'ul' || tagName === 'ol';
 }
 
 const CALLBACK_QUEUES = {
   BEFORE_COMPLETE: 'beforeComplete',
   COMPLETE: 'complete',
-  AFTER_COMPLETE: 'afterComplete'
+  AFTER_COMPLETE: 'afterComplete',
 };
 
 // There are only two events that we're concerned about for Undo, that is inserting text and deleting content.
@@ -26,9 +26,8 @@ const CALLBACK_QUEUES = {
 // deadicated undo.
 const EDIT_ACTIONS = {
   INSERT_TEXT: 1,
-  DELETE: 2
+  DELETE: 2,
 };
-
 
 /**
  * The PostEditor is used to modify a post. It should not be instantiated directly.
@@ -47,7 +46,7 @@ class PostEditor {
   /**
    * @private
    */
-  constructor(editor) {
+  constructor (editor) {
     this.editor = editor;
     this.builder = this.editor.builder;
     this._callbacks = new LifecycleCallbacks(values(CALLBACK_QUEUES));
@@ -60,19 +59,19 @@ class PostEditor {
     this._rerender = () => this.editor.rerender();
   }
 
-  addCallback(...args) {
+  addCallback (...args) {
     this._callbacks.addCallback(...args);
   }
 
-  addCallbackOnce(...args) {
+  addCallbackOnce (...args) {
     this._callbacks.addCallbackOnce(...args);
   }
 
-  runCallbacks(...args) {
+  runCallbacks (...args) {
     this._callbacks.runCallbacks(...args);
   }
 
-  begin() {
+  begin () {
     // cache the editor's range
     this._range = this.editor.range;
   }
@@ -95,7 +94,7 @@ class PostEditor {
    * @param {Range|Position} range
    * @public
    */
-  setRange(range) {
+  setRange (range) {
     range = toRange(range);
 
     // TODO validate that the range is valid
@@ -119,14 +118,14 @@ class PostEditor {
    * @return {Position} The position where the cursor would go after deletion
    * @public
    */
-  deleteRange(range) {
-    assert("Must pass MobiledocKit Range to `deleteRange`", range instanceof Range);
+  deleteRange (range) {
+    assert('Must pass MobiledocKit Range to `deleteRange`', range instanceof Range);
 
     this.editActionTaken = EDIT_ACTIONS.DELETE;
 
     let {
-      head, head: {section: headSection},
-      tail, tail: {section: tailSection}
+      head, head: { section: headSection },
+      tail, tail: { section: tailSection },
     } = range;
 
     let { editor: { post } } = this;
@@ -192,11 +191,11 @@ class PostEditor {
    * @return {Position}
    * @private
    */
-  cutSection(section, head, tail) {
+  cutSection (section, head, tail) {
     assert('Must pass head position and tail position to `cutSection`',
-           head instanceof Position && tail instanceof Position);
+      head instanceof Position && tail instanceof Position);
     assert('Must pass positions within same section to `cutSection`',
-           head.section === tail.section);
+      head.section === tail.section);
 
     if (section.isBlank || head.isEqual(tail)) {
       return head;
@@ -217,14 +216,14 @@ class PostEditor {
     return head;
   }
 
-  _coalesceMarkers(section) {
+  _coalesceMarkers (section) {
     if (section.isMarkerable) {
       this._removeBlankMarkers(section);
       this._joinSimilarMarkers(section);
     }
   }
 
-  _removeBlankMarkers(section) {
+  _removeBlankMarkers (section) {
     forEach(
       filter(section.markers, m => m.isBlank),
       m => this.removeMarker(m)
@@ -232,7 +231,7 @@ class PostEditor {
   }
 
   // joins markers that have identical markups
-  _joinSimilarMarkers(section) {
+  _joinSimilarMarkers (section) {
     let marker = section.markers.head;
     let nextMarker;
     while (marker && marker.next) {
@@ -248,7 +247,7 @@ class PostEditor {
     }
   }
 
-  removeMarker(marker) {
+  removeMarker (marker) {
     this._scheduleForRemoval(marker);
     if (marker.section) {
       this._markDirty(marker.section);
@@ -256,7 +255,7 @@ class PostEditor {
     }
   }
 
-  _scheduleForRemoval(postNode) {
+  _scheduleForRemoval (postNode) {
     if (postNode.renderNode) {
       postNode.renderNode.scheduleForRemoval();
 
@@ -273,7 +272,7 @@ class PostEditor {
     }
   }
 
-  _joinContiguousListSections() {
+  _joinContiguousListSections () {
     let { post } = this.editor;
     let range = this._range;
     let prev;
@@ -288,7 +287,6 @@ class PostEditor {
           prev.isListSection &&
           section.isListSection &&
           prev.tagName === section.tagName) {
-
         currentGroup = currentGroup || [prev];
         currentGroup.push(section);
       } else {
@@ -332,13 +330,13 @@ class PostEditor {
     }
   }
 
-  _joinListSections(baseList, nextList) {
+  _joinListSections (baseList, nextList) {
     baseList.join(nextList);
     this._markDirty(baseList);
     this.removeSection(nextList);
   }
 
-  _markDirty(postNode) {
+  _markDirty (postNode) {
     if (postNode.renderNode) {
       postNode.renderNode.markDirty();
 
@@ -361,9 +359,9 @@ class PostEditor {
    * @public
    * @deprecated after v0.10.3
    */
-  deleteFrom(position, direction=DIRECTION.BACKWARD) {
+  deleteFrom (position, direction = DIRECTION.BACKWARD) {
     deprecate("`postEditor#deleteFrom is deprecated. Use `deleteAtPosition(position, direction=BACKWARD, {unit}={unit: 'char'})` instead");
-    return this.deleteAtPosition(position, direction, {unit: 'char'});
+    return this.deleteAtPosition(position, direction, { unit: 'char' });
   }
 
   /**
@@ -388,7 +386,7 @@ class PostEditor {
    * @param {String} [options.unit="char"] The unit of deletion ("word" or "char")
    * @return {Position}
    */
-  deleteAtPosition(position, direction=DIRECTION.BACKWARD, {unit}={unit: 'char'}) {
+  deleteAtPosition (position, direction = DIRECTION.BACKWARD, { unit } = { unit: 'char' }) {
     if (direction === DIRECTION.BACKWARD) {
       return this._deleteAtPositionBackward(position, unit);
     } else {
@@ -396,7 +394,7 @@ class PostEditor {
     }
   }
 
-  _deleteAtPositionBackward(position, unit) {
+  _deleteAtPositionBackward (position, unit) {
     if (position.isHead() && position.section.isListItem) {
       this.toggleSection('p', position);
       return this._range.head;
@@ -407,7 +405,7 @@ class PostEditor {
     }
   }
 
-  _deleteAtPositionForward(position, unit) {
+  _deleteAtPositionForward (position, unit) {
     let nextPosition = unit === 'word' ? position.moveWord(FORWARD) : position.move(FORWARD);
     let range = position.toRange(nextPosition);
     return this.deleteRange(range);
@@ -431,7 +429,7 @@ class PostEditor {
    * @return {Array} of markers that are inside the split
    * @private
    */
-  splitMarkers(range) {
+  splitMarkers (range) {
     const { post } = this.editor;
     const { head, tail } = range;
 
@@ -441,7 +439,7 @@ class PostEditor {
     return post.markersContainedByRange(range);
   }
 
-  splitSectionMarkerAtOffset(section, offset) {
+  splitSectionMarkerAtOffset (section, offset) {
     const edit = section.splitMarkerAtOffset(offset);
     edit.removed.forEach(m => this.removeMarker(m));
   }
@@ -466,7 +464,7 @@ class PostEditor {
    * @return {Array} new sections, one for the first half and one for the second (either one can be null)
    * @public
    */
-  splitSection(position) {
+  splitSection (position) {
     const { section } = position;
 
     if (section.isCardSection) {
@@ -501,10 +499,10 @@ class PostEditor {
    * @return {Section[]} 2-item array of pre and post-split sections
    * @private
    */
-  _splitCardSection(cardSection, position) {
+  _splitCardSection (cardSection, position) {
     let { offset } = position;
     assert('Cards section must be split at offset 0 or 1',
-           offset === 0 || offset === 1);
+      offset === 0 || offset === 1);
 
     let newSection = this.builder.createMarkupSection();
     let nextSection;
@@ -530,7 +528,7 @@ class PostEditor {
    * @return null
    * @public
    */
-  replaceSection(section, newSection) {
+  replaceSection (section, newSection) {
     if (!section) {
       // FIXME should a falsy section be a valid argument?
       this.insertSectionBefore(this.editor.post.sections, newSection, null);
@@ -539,7 +537,7 @@ class PostEditor {
     }
   }
 
-  moveSectionBefore(collection, renderedSection, beforeSection) {
+  moveSectionBefore (collection, renderedSection, beforeSection) {
     const newSection = renderedSection.clone();
     this.removeSection(renderedSection);
     this.insertSectionBefore(collection, newSection, beforeSection);
@@ -550,7 +548,7 @@ class PostEditor {
    * @param {Section} section A section that is already in DOM
    * @public
    */
-  moveSectionUp(renderedSection) {
+  moveSectionUp (renderedSection) {
     const isFirst = !renderedSection.prev;
     if (isFirst) {
       return renderedSection;
@@ -565,7 +563,7 @@ class PostEditor {
    * @param {Section} section A section that is already in DOM
    * @public
    */
-  moveSectionDown(renderedSection) {
+  moveSectionDown (renderedSection) {
     const isLast = !renderedSection.next;
     if (isLast) {
       return renderedSection;
@@ -585,10 +583,10 @@ class PostEditor {
    * @return {Position} The position that represents the end of the inserted markers.
    * @public
    */
-  insertMarkers(position, markers) {
+  insertMarkers (position, markers) {
     let { section, offset } = position;
     assert('Cannot insert markers at non-markerable position',
-           section.isMarkerable);
+      section.isMarkerable);
 
     this.editActionTaken = EDIT_ACTIONS.INSERT_TEXT;
 
@@ -619,7 +617,7 @@ class PostEditor {
    * @param {Markup[]} markups
    * @return {Position} position at the end of the inserted text
    */
-  insertTextWithMarkup(position, text, markups=[]) {
+  insertTextWithMarkup (position, text, markups = []) {
     let { section } = position;
     if (!section.isMarkerable) { return; }
     let marker = this.builder.createMarker(text, markups);
@@ -634,7 +632,7 @@ class PostEditor {
    * @param {String} text
    * @return {Position} position at the end of the inserted text.
    */
-  insertText(position, text) {
+  insertText (position, text) {
     let { section } = position;
     if (!section.isMarkerable) { return; }
     let markups = position.marker && position.marker.markups;
@@ -642,7 +640,7 @@ class PostEditor {
     return this.insertTextWithMarkup(position, text, markups);
   }
 
-  _replaceSection(section, newSections) {
+  _replaceSection (section, newSections) {
     let nextSection = section.next;
     let collection = section.parent.sections;
 
@@ -677,7 +675,7 @@ class PostEditor {
    * @param {Markup} markup A markup post abstract node
    * @public
    */
-  addMarkupToRange(range, markup) {
+  addMarkupToRange (range, markup) {
     if (range.isCollapsed) { return; }
 
     let markers = this.splitMarkers(range);
@@ -723,7 +721,7 @@ class PostEditor {
    * a function that returns true when passed a markup that should be removed
    * @private
    */
-  removeMarkupFromRange(range, markupOrMarkupCallback) {
+  removeMarkupFromRange (range, markupOrMarkupCallback) {
     if (range.isCollapsed) { return; }
 
     this.splitMarkers(range).forEach(marker => {
@@ -755,11 +753,11 @@ class PostEditor {
    * @param {Range|Position} range in which to toggle. Defaults to current editor range.
    * @public
    */
-  toggleMarkup(markupOrMarkupString, range=this._range) {
+  toggleMarkup (markupOrMarkupString, range = this._range) {
     range = toRange(range);
-    const markup = typeof markupOrMarkupString === 'string' ?
-                     this.builder.createMarkup(markupOrMarkupString) :
-                     markupOrMarkupString;
+    const markup = typeof markupOrMarkupString === 'string'
+      ? this.builder.createMarkup(markupOrMarkupString)
+      : markupOrMarkupString;
 
     const hasMarkup = this.editor.detectMarkupInRange(range, markup.tagName);
     // FIXME: This implies only a single markup in a range. This may not be
@@ -785,7 +783,7 @@ class PostEditor {
    *        Defaults to the current editor range.
    * @public
    */
-  toggleSection(sectionTagName, range=this._range) {
+  toggleSection (sectionTagName, range = this._range) {
     range = toRange(range);
 
     sectionTagName = normalizeTagName(sectionTagName);
@@ -812,19 +810,19 @@ class PostEditor {
     this.setRange(nextRange);
   }
 
-  _isSameSectionType(section, sectionTagName) {
-    return section.isListItem ?
-      section.parent.tagName === sectionTagName :
-      section.tagName        === sectionTagName;
+  _isSameSectionType (section, sectionTagName) {
+    return section.isListItem
+      ? section.parent.tagName === sectionTagName
+      : section.tagName === sectionTagName;
   }
 
   /**
    * @param {Markerable} section
    * @private
    */
-  changeSectionTagName(section, newTagName) {
+  changeSectionTagName (section, newTagName) {
     assert('Cannot pass non-markerable section to `changeSectionTagName`',
-           section.isMarkerable);
+      section.isMarkerable);
 
     if (isListSectionTagName(newTagName)) {
       return this._changeSectionToListItem(section, newTagName);
@@ -846,15 +844,16 @@ class PostEditor {
    * @return {Array} the pre-item and post-item on either side of the split
    * @private
    */
-  _splitListItem(item, position) {
+  _splitListItem (item, position) {
     let { section, offset } = position;
     assert('Cannot split list item at position that does not include item',
-           item === section);
+      item === section);
 
     item.splitMarkerAtOffset(offset);
     let prevMarker = item.markerBeforeOffset(offset);
-    let preItem  = this.builder.createListItem(),
-        postItem = this.builder.createListItem();
+    let preItem = this.builder.createListItem();
+
+    let postItem = this.builder.createListItem();
 
     let currentItem = preItem;
     item.markers.forEach(marker => {
@@ -877,19 +876,19 @@ class PostEditor {
    *
    * @private
    */
-  _splitListAtPosition(list, position) {
+  _splitListAtPosition (list, position) {
     assert('Cannot split list at position not in list',
-           position.section.parent === list);
+      position.section.parent === list);
 
     let positionIsMiddle = !position.isHead() && !position.isTail();
     if (positionIsMiddle) {
       let item = position.section;
-      let [pre,] =
+      let [pre] =
         this._splitListItem(item, position);
       position = pre.tailPosition();
     }
 
-    let preList  = this.builder.createListSection(list.tagName);
+    let preList = this.builder.createListSection(list.tagName);
     let postList = this.builder.createListSection(list.tagName);
 
     let preItem = position.section;
@@ -920,7 +919,7 @@ class PostEditor {
    *
    * @private
    */
-  _splitListAtItem(list, item) {
+  _splitListAtItem (list, item) {
     let next = list;
     let prev = this.builder.createListSection(next.tagName);
     let mid = this.builder.createListSection(next.tagName);
@@ -932,7 +931,7 @@ class PostEditor {
     items.forEach(i => {
       let listToAppend;
       if (i === item) {
-        addToPrev    = false;
+        addToPrev = false;
         listToAppend = mid;
       } else if (addToPrev) {
         listToAppend = prev;
@@ -962,20 +961,20 @@ class PostEditor {
     return [prev, mid, next];
   }
 
-  _changeSectionFromListItem(section, newTagName) {
+  _changeSectionFromListItem (section, newTagName) {
     assert('Must pass list item to `_changeSectionFromListItem`',
-           section.isListItem);
+      section.isListItem);
 
     let listSection = section.parent;
     let markupSection = this.builder.createMarkupSection(newTagName);
     markupSection.join(section);
 
-    let [, mid,] = this._splitListAtItem(listSection, section);
+    let [, mid] = this._splitListAtItem(listSection, section);
     this.replaceSection(mid, markupSection);
     return markupSection;
   }
 
-  _changeSectionToListItem(section, newTagName) {
+  _changeSectionToListItem (section, newTagName) {
     let isAlreadyCorrectListItem = section.isListItem &&
       section.parent.tagName === newTagName;
 
@@ -988,7 +987,7 @@ class PostEditor {
 
     let sectionToReplace;
     if (section.isListItem) {
-      let [, mid,] = this._splitListAtItem(section.parent, section);
+      let [, mid] = this._splitListAtItem(section.parent, section);
       sectionToReplace = mid;
     } else {
       sectionToReplace = section;
@@ -1017,7 +1016,7 @@ class PostEditor {
    *        if falsy the new section will be appended to the collection
    * @public
    */
-  insertSectionBefore(collection, section, beforeSection) {
+  insertSectionBefore (collection, section, beforeSection) {
     collection.insertBefore(section, beforeSection);
     this._markDirty(section.parent);
   }
@@ -1028,7 +1027,7 @@ class PostEditor {
    * @param {Section} section
    * @public
    */
-  insertSection(section) {
+  insertSection (section) {
     const activeSection = this.editor.activeSection;
     const nextSection = activeSection && activeSection.next;
 
@@ -1041,7 +1040,7 @@ class PostEditor {
    * @param {Section} section
    * @public
    */
-  insertSectionAtEnd(section) {
+  insertSectionAtEnd (section) {
     this.insertSectionBefore(this.editor.post.sections, section, null);
   }
 
@@ -1051,7 +1050,7 @@ class PostEditor {
    * @param {Post} post
    * @private
    */
-  insertPost(position, newPost) {
+  insertPost (position, newPost) {
     let post = this.editor.post;
     let inserter = new PostInserter(this, post);
     let nextPosition = inserter.insert(position, newPost);
@@ -1072,8 +1071,8 @@ class PostEditor {
    * @param {Object} section The section to remove
    * @public
    */
-  removeSection(section) {
-    let parent          = section.parent;
+  removeSection (section) {
+    let parent = section.parent;
     this._scheduleForRemoval(section);
     parent.sections.remove(section);
 
@@ -1082,20 +1081,20 @@ class PostEditor {
     }
   }
 
-  removeAllSections() {
+  removeAllSections () {
     this.editor.post.sections.toArray().forEach(section => {
       this.removeSection(section);
     });
   }
 
-  migrateSectionsFromPost(post) {
+  migrateSectionsFromPost (post) {
     post.sections.toArray().forEach(section => {
       post.sections.remove(section);
       this.insertSectionBefore(this.editor.post.sections, section, null);
     });
   }
 
-  _scheduleListRemovalIfEmpty(listSection) {
+  _scheduleListRemovalIfEmpty (listSection) {
     this.addCallback(CALLBACK_QUEUES.BEFORE_COMPLETE, () => {
       // if the list is attached and blank after we do other rendering stuff,
       // remove it
@@ -1113,9 +1112,9 @@ class PostEditor {
    * @param {Boolean} [once=false] Whether to only schedule the callback once.
    * @public
    */
-  schedule(callback, once=false) {
+  schedule (callback, once = false) {
     assert('Work can only be scheduled before a post edit has completed',
-           !this._didComplete);
+      !this._didComplete);
     if (once) {
       this.addCallbackOnce(CALLBACK_QUEUES.COMPLETE, callback);
     } else {
@@ -1131,7 +1130,7 @@ class PostEditor {
    * @param {Function} callback to run during completion
    * @public
    */
-  scheduleOnce(callback) {
+  scheduleOnce (callback) {
     this.schedule(callback, true);
   }
 
@@ -1140,7 +1139,7 @@ class PostEditor {
    *
    * @public
    */
-  scheduleRerender() {
+  scheduleRerender () {
     this.scheduleOnce(this._rerender);
   }
 
@@ -1151,11 +1150,11 @@ class PostEditor {
    *
    * @public
    */
-  scheduleDidUpdate() {
+  scheduleDidUpdate () {
     this.scheduleOnce(this._postDidChange);
   }
 
-  scheduleAfterRender(callback, once=false) {
+  scheduleAfterRender (callback, once = false) {
     if (once) {
       this.addCallbackOnce(CALLBACK_QUEUES.AFTER_COMPLETE, callback);
     } else {
@@ -1169,7 +1168,7 @@ class PostEditor {
    *
    * @private
    */
-  complete() {
+  complete () {
     assert('Post editing can only be completed once', !this._didComplete);
 
     this.runCallbacks(CALLBACK_QUEUES.BEFORE_COMPLETE);
@@ -1178,15 +1177,15 @@ class PostEditor {
     this.runCallbacks(CALLBACK_QUEUES.AFTER_COMPLETE);
   }
 
-  undoLastChange() {
+  undoLastChange () {
     this.editor._editHistory.stepBackward(this);
   }
 
-  redoLastChange() {
+  redoLastChange () {
     this.editor._editHistory.stepForward(this);
   }
 
-  cancelSnapshot() {
+  cancelSnapshot () {
     this._shouldCancelSnapshot = true;
   }
 }

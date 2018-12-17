@@ -13,10 +13,10 @@ import { isArrayEqual } from '../utils/array-utils';
 // See "high surrogate" and "low surrogate" on
 // https://en.wikipedia.org/wiki/Unicode_block
 export const HIGH_SURROGATE_RANGE = [0xD800, 0xDBFF];
-export const LOW_SURROGATE_RANGE  = [0xDC00, 0xDFFF];
+export const LOW_SURROGATE_RANGE = [0xDC00, 0xDFFF];
 
 const Marker = class Marker extends LinkedItem {
-  constructor(value='', markups=[]) {
+  constructor (value = '', markups = []) {
     super();
     this.value = value;
     assert('Marker must have value', value !== undefined && value !== null);
@@ -27,40 +27,40 @@ const Marker = class Marker extends LinkedItem {
     markups.forEach(m => this.addMarkup(m));
   }
 
-  clone() {
+  clone () {
     const clonedMarkups = this.markups.slice();
     return this.builder.createMarker(this.value, clonedMarkups);
   }
 
-  get isEmpty() {
+  get isEmpty () {
     return this.isBlank;
   }
 
-  get isBlank() {
+  get isBlank () {
     return this.length === 0;
   }
 
-  charAt(offset) {
-    return this.value.slice(offset, offset+1);
+  charAt (offset) {
+    return this.value.slice(offset, offset + 1);
   }
 
   /**
    * A marker's text is equal to its value.
    * Compare with an Atom which distinguishes between text and value
    */
-  get text() {
+  get text () {
     return this.value;
   }
 
-  get length() {
+  get length () {
     return this.value.length;
   }
 
   // delete the character at this offset,
   // update the value with the new value
-  deleteValueAtOffset(offset) {
+  deleteValueAtOffset (offset) {
     assert('Cannot delete value at offset outside bounds',
-           offset >= 0 && offset <= this.length);
+      offset >= 0 && offset <= this.length);
 
     let width = 1;
     let code = this.value.charCodeAt(offset);
@@ -73,26 +73,26 @@ const Marker = class Marker extends LinkedItem {
 
     const [ left, right ] = [
       this.value.slice(0, offset),
-      this.value.slice(offset+width)
+      this.value.slice(offset + width),
     ];
     this.value = left + right;
 
     return width;
   }
 
-  canJoin(other) {
+  canJoin (other) {
     return other && other.isMarker && isArrayEqual(this.markups, other.markups);
   }
 
-  textUntil(offset) {
+  textUntil (offset) {
     return this.value.slice(0, offset);
   }
 
-  split(offset=0, endOffset=this.length) {
+  split (offset = 0, endOffset = this.length) {
     let markers = [
       this.builder.createMarker(this.value.substring(0, offset)),
       this.builder.createMarker(this.value.substring(offset, endOffset)),
-      this.builder.createMarker(this.value.substring(endOffset))
+      this.builder.createMarker(this.value.substring(endOffset)),
     ];
 
     this.markups.forEach(mu => markers.forEach(m => m.addMarkup(mu)));
@@ -102,12 +102,12 @@ const Marker = class Marker extends LinkedItem {
   /**
    * @return {Array} 2 markers either or both of which could be blank
    */
-  splitAtOffset(offset) {
+  splitAtOffset (offset) {
     assert('Cannot split a marker at an offset > its length',
-           offset <= this.length);
+      offset <= this.length);
     let { value, builder } = this;
 
-    let pre  = builder.createMarker(value.substring(0, offset));
+    let pre = builder.createMarker(value.substring(0, offset));
     let post = builder.createMarker(value.substring(offset));
 
     this.markups.forEach(markup => {
@@ -117,7 +117,6 @@ const Marker = class Marker extends LinkedItem {
 
     return [pre, post];
   }
-
 };
 
 mixin(Marker, MarkuperableMixin);

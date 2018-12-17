@@ -7,25 +7,25 @@ import Range from 'mobiledoc-kit/utils/cursor/range';
  * @private
  */
 class EditState {
-  constructor(editor) {
+  constructor (editor) {
     this.editor = editor;
 
     let defaultState = {
       range: Range.blankRange(),
       activeMarkups: [],
       activeSections: [],
-      activeSectionTagNames: []
+      activeSectionTagNames: [],
     };
 
     this.prevState = this.state = defaultState;
   }
 
-  updateRange(newRange) {
+  updateRange (newRange) {
     this.prevState = this.state;
     this.state = this._readState(newRange);
   }
 
-  destroy() {
+  destroy () {
     this.editor = null;
     this.prevState = this.state = null;
   }
@@ -33,8 +33,8 @@ class EditState {
   /**
    * @return {Boolean}
    */
-  rangeDidChange() {
-    let { state: { range } , prevState: {range: prevRange} } = this;
+  rangeDidChange () {
+    let { state: { range }, prevState: { range: prevRange } } = this;
 
     return !prevRange.isEqual(range);
   }
@@ -43,7 +43,7 @@ class EditState {
    * @return {Boolean} Whether the input mode (active markups or active section tag names)
    * has changed.
    */
-  inputModeDidChange() {
+  inputModeDidChange () {
     let { state, prevState } = this;
     return (!isArrayEqual(state.activeMarkups, prevState.activeMarkups) ||
             !isArrayEqual(state.activeSectionTagNames, prevState.activeSectionTagNames));
@@ -52,21 +52,21 @@ class EditState {
   /**
    * @return {Range}
    */
-  get range() {
+  get range () {
     return this.state.range;
   }
 
   /**
    * @return {Section[]}
    */
-  get activeSections() {
+  get activeSections () {
     return this.state.activeSections;
   }
 
   /**
    * @return {Markup[]}
    */
-  get activeMarkups() {
+  get activeMarkups () {
     return this.state.activeMarkups;
   }
 
@@ -76,7 +76,7 @@ class EditState {
    * in this case the editor needs to track that it has an active "b" markup
    * and apply it to the next text the user types.
    */
-  toggleMarkupState(markup) {
+  toggleMarkupState (markup) {
     if (contains(this.activeMarkups, markup)) {
       this._removeActiveMarkup(markup);
     } else {
@@ -84,11 +84,11 @@ class EditState {
     }
   }
 
-  _readState(range) {
+  _readState (range) {
     let state = {
       range,
-      activeMarkups:  this._readActiveMarkups(range),
-      activeSections: this._readActiveSections(range)
+      activeMarkups: this._readActiveMarkups(range),
+      activeSections: this._readActiveSections(range),
     };
     // Section objects are 'live', so to check that they changed, we
     // need to map their tagNames now (and compare to mapped tagNames later).
@@ -100,7 +100,7 @@ class EditState {
     return state;
   }
 
-  _readActiveSections(range) {
+  _readActiveSections (range) {
     let { head, tail } = range;
     let { editor: { post } } = this;
     if (range.isBlank) {
@@ -110,17 +110,17 @@ class EditState {
     }
   }
 
-  _readActiveMarkups(range) {
+  _readActiveMarkups (range) {
     let { editor: { post } } = this;
     return post.markupsInRange(range);
   }
 
-  _removeActiveMarkup(markup) {
+  _removeActiveMarkup (markup) {
     let index = this.state.activeMarkups.indexOf(markup);
     this.state.activeMarkups.splice(index, 1);
   }
 
-  _addActiveMarkup(markup) {
+  _addActiveMarkup (markup) {
     this.state.activeMarkups.push(markup);
   }
 }

@@ -3,24 +3,24 @@ import { forEach } from './array-utils';
 export const NODE_TYPES = {
   ELEMENT: 1,
   TEXT: 3,
-  COMMENT: 8
+  COMMENT: 8,
 };
 
-function isTextNode(node) {
+function isTextNode (node) {
   return node.nodeType === NODE_TYPES.TEXT;
 }
 
-function isCommentNode(node) {
+function isCommentNode (node) {
   return node.nodeType === NODE_TYPES.COMMENT;
 }
 
-function isElementNode(node) {
+function isElementNode (node) {
   return node.nodeType === NODE_TYPES.ELEMENT;
 }
 
 // perform a pre-order tree traversal of the dom, calling `callbackFn(node)`
 // for every node for which `conditionFn(node)` is true
-function walkDOM(topNode, callbackFn=()=>{}, conditionFn=()=>true) {
+function walkDOM (topNode, callbackFn = () => {}, conditionFn = () => true) {
   let currentNode = topNode;
 
   if (conditionFn(currentNode)) {
@@ -35,13 +35,12 @@ function walkDOM(topNode, callbackFn=()=>{}, conditionFn=()=>true) {
   }
 }
 
-function walkTextNodes(topNode, callbackFn=()=>{}) {
+function walkTextNodes (topNode, callbackFn = () => {}) {
   const conditionFn = (node) => isTextNode(node);
   walkDOM(topNode, callbackFn, conditionFn);
 }
 
-
-function clearChildNodes(element) {
+function clearChildNodes (element) {
   while (element.childNodes.length) {
     element.removeChild(element.childNodes[0]);
   }
@@ -54,12 +53,12 @@ function clearChildNodes(element) {
  *  Mimics the behavior of `Node.contains`, which is broken in IE 10
  *  @private
  */
-function containsNode(parentNode, childNode) {
+function containsNode (parentNode, childNode) {
   if (parentNode === childNode) {
     return true;
   }
   const position = parentNode.compareDocumentPosition(childNode);
-  return !!(position & Node.DOCUMENT_POSITION_CONTAINED_BY);
+  return !!(position & window.Node.DOCUMENT_POSITION_CONTAINED_BY);
 }
 
 /**
@@ -69,35 +68,35 @@ function containsNode(parentNode, childNode) {
  * @return {Object} key-value pairs
  * @private
  */
-function getAttributes(element) {
+function getAttributes (element) {
   const result = {};
   if (element.hasAttributes()) {
-    forEach(element.attributes, ({name,value}) => {
+    forEach(element.attributes, ({ name, value }) => {
       result[name] = value;
     });
   }
   return result;
 }
 
-function addClassName(element, className) {
+function addClassName (element, className) {
   element.classList.add(className);
 }
 
-function removeClassName(element, className) {
+function removeClassName (element, className) {
   element.classList.remove(className);
 }
 
-function normalizeTagName(tagName) {
+function normalizeTagName (tagName) {
   return tagName.toLowerCase();
 }
 
-function parseHTML(html) {
+function parseHTML (html) {
   const div = document.createElement('div');
   div.innerHTML = html;
   return div;
 }
 
-function serializeHTML(node) {
+function serializeHTML (node) {
   const div = document.createElement('div');
   div.appendChild(node);
   return div.innerHTML;
@@ -116,5 +115,5 @@ export {
   isCommentNode,
   isElementNode,
   parseHTML,
-  serializeHTML
+  serializeHTML,
 };

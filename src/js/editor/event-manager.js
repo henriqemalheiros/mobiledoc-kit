@@ -2,7 +2,7 @@ import assert from 'mobiledoc-kit/utils/assert';
 import {
   parsePostFromPaste,
   setClipboardData,
-  parsePostFromDrop
+  parsePostFromDrop,
 } from 'mobiledoc-kit/utils/parse-utils';
 import { filter, forEach } from 'mobiledoc-kit/utils/array-utils';
 import Key from 'mobiledoc-kit/utils/key';
@@ -11,17 +11,17 @@ import SelectionManager from 'mobiledoc-kit/editor/selection-manager';
 import Browser from 'mobiledoc-kit/utils/browser';
 
 const ELEMENT_EVENT_TYPES = [
-  'keydown', 'keyup', 'cut', 'copy', 'paste', 'keypress', 'drop'
+  'keydown', 'keyup', 'cut', 'copy', 'paste', 'keypress', 'drop',
 ];
 
 export default class EventManager {
-  constructor(editor) {
+  constructor (editor) {
     this.editor = editor;
     this.logger = editor.loggerFor('event-manager');
     this._textInputHandler = new TextInputHandler(editor);
     this._listeners = [];
     this.modifierKeys = {
-      shift: false
+      shift: false,
     };
 
     this._selectionManager = new SelectionManager(
@@ -29,7 +29,7 @@ export default class EventManager {
     this.started = true;
   }
 
-  init() {
+  init () {
     let { editor: { element } } = this;
     assert(`Cannot init EventManager without element`, !!element);
 
@@ -40,28 +40,28 @@ export default class EventManager {
     this._selectionManager.start();
   }
 
-  start() {
+  start () {
     this.started = true;
   }
 
-  stop() {
+  stop () {
     this.started = false;
   }
 
-  registerInputHandler(inputHandler) {
+  registerInputHandler (inputHandler) {
     this._textInputHandler.register(inputHandler);
   }
 
-  unregisterInputHandler(name) {
+  unregisterInputHandler (name) {
     this._textInputHandler.unregister(name);
   }
 
-  unregisterAllTextInputHandlers() {
+  unregisterAllTextInputHandlers () {
     this._textInputHandler.destroy();
     this._textInputHandler = new TextInputHandler(this.editor);
   }
 
-  _addListener(context, type) {
+  _addListener (context, type) {
     assert(`Missing listener for ${type}`, !!this[type]);
 
     let listener = (event) => this._handleEvent(type, event);
@@ -69,7 +69,7 @@ export default class EventManager {
     this._listeners.push([context, type, listener]);
   }
 
-  _removeListeners() {
+  _removeListeners () {
     this._listeners.forEach(([context, type, listener]) => {
       context.removeEventListener(type, listener);
     });
@@ -78,7 +78,7 @@ export default class EventManager {
 
   // This is primarily useful for programmatically simulating events on the
   // editor from the tests.
-  _trigger(context, type, event) {
+  _trigger (context, type, event) {
     forEach(
       filter(this._listeners, ([_context, _type]) => {
         return _context === context && _type === type;
@@ -89,14 +89,14 @@ export default class EventManager {
     );
   }
 
-  destroy() {
+  destroy () {
     this._textInputHandler.destroy();
     this._selectionManager.destroy();
     this._removeListeners();
   }
 
-  _handleEvent(type, event) {
-    let {target: element} = event;
+  _handleEvent (type, event) {
+    let { target: element } = event;
     if (!this.started) {
       // abort handling this event
       return true;
@@ -110,11 +110,11 @@ export default class EventManager {
     this[type](event);
   }
 
-  isElementAddressable(element) {
+  isElementAddressable (element) {
     return this.editor.cursor.isAddressable(element);
   }
 
-  selectionDidChange(selection /*, prevSelection */) {
+  selectionDidChange (selection /*, prevSelection */) {
     let shouldNotify = true;
     let { anchorNode } = selection;
     if (!this.isElementAddressable(anchorNode)) {
@@ -135,7 +135,7 @@ export default class EventManager {
     }
   }
 
-  keypress(event) {
+  keypress (event) {
     let { editor, _textInputHandler } = this;
     if (!editor.hasCursor()) { return; }
 
@@ -149,13 +149,13 @@ export default class EventManager {
     _textInputHandler.handle(key.toString());
   }
 
-  keydown(event) {
+  keydown (event) {
     let { editor } = this;
     if (!editor.hasCursor()) { return; }
     if (!editor.isEditable) { return; }
 
     let key = Key.fromEvent(event);
-    this._updateModifiersFromKey(key, {isDown:true});
+    this._updateModifiersFromKey(key, { isDown: true });
 
     if (editor.handleKeyCommand(event)) { return; }
 
@@ -165,7 +165,7 @@ export default class EventManager {
 
     let range = editor.range;
 
-    switch(true) {
+    switch (true) {
       // FIXME This should be restricted to only card/atom boundaries
       case key.isHorizontalArrowWithoutModifiersOtherThanShift(): {
         let newRange;
@@ -187,7 +187,7 @@ export default class EventManager {
         } else if (key.ctrlKey && !Browser.isMac()) {
           unit = 'word';
         }
-        editor.performDelete({direction, unit});
+        editor.performDelete({ direction, unit });
         event.preventDefault();
         break;
       }
@@ -203,21 +203,21 @@ export default class EventManager {
     }
   }
 
-  keyup(event) {
+  keyup (event) {
     let { editor } = this;
     if (!editor.hasCursor()) { return; }
     let key = Key.fromEvent(event);
-    this._updateModifiersFromKey(key, {isDown:false});
+    this._updateModifiersFromKey(key, { isDown: false });
   }
 
-  cut(event) {
+  cut (event) {
     event.preventDefault();
 
     this.copy(event);
     this.editor.performDelete();
   }
 
-  copy(event) {
+  copy (event) {
     event.preventDefault();
 
     let { editor, editor: { range, post } } = this;
@@ -226,13 +226,13 @@ export default class EventManager {
     let data = {
       html: editor.serializePost(post, 'html'),
       text: editor.serializePost(post, 'text'),
-      mobiledoc: editor.serializePost(post, 'mobiledoc')
+      mobiledoc: editor.serializePost(post, 'mobiledoc'),
     };
 
     setClipboardData(event, data, window);
   }
 
-  paste(event) {
+  paste (event) {
     event.preventDefault();
 
     let { editor } = this;
@@ -248,7 +248,7 @@ export default class EventManager {
 
     let position = editor.range.head;
     let targetFormat = this.modifierKeys.shift ? 'text' : 'html';
-    let pastedPost = parsePostFromPaste(event, editor, {targetFormat});
+    let pastedPost = parsePostFromPaste(event, editor, { targetFormat });
 
     editor.run(postEditor => {
       let nextPosition = postEditor.insertPost(position, pastedPost);
@@ -256,7 +256,7 @@ export default class EventManager {
     });
   }
 
-  drop(event) {
+  drop (event) {
     event.preventDefault();
 
     let { clientX: x, clientY: y } = event;
@@ -268,7 +268,7 @@ export default class EventManager {
       return;
     }
 
-    let post = parsePostFromDrop(event, editor, {logger: this.logger});
+    let post = parsePostFromDrop(event, editor, { logger: this.logger });
     if (!post) {
       this.logger.log('Could not determine post from drop event');
       return;
@@ -280,10 +280,9 @@ export default class EventManager {
     });
   }
 
-  _updateModifiersFromKey(key, {isDown}) {
+  _updateModifiersFromKey (key, { isDown }) {
     if (key.isShiftKey()) {
       this.modifierKeys.shift = isDown;
     }
   }
-
 }
