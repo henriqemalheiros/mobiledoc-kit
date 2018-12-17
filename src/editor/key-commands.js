@@ -1,4 +1,4 @@
-import { Key, MODIFIERS, specialCharacterToCode } from '../utils/key';
+import Key, { MODIFIERS, specialCharacterToCode } from '../utils/key';
 import { filter, reduce } from '../utils/array-utils';
 import assert from '../utils/assert';
 import Browser from '../utils/browser';

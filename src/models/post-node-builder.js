@@ -11,14 +11,8 @@ import {
   LIST_ITEM_TYPE,
   MARKUP_SECTION_TYPE,
 } from '../models/types';
-import {
-  MarkupSection,
-  DEFAULT_TAG_NAME as DEFAULT_MARKUP_SECTION_TAG_NAME,
-} from '../models/markup-section';
-import {
-  ListSection,
-  DEFAULT_TAG_NAME as DEFAULT_LIST_SECTION_TAG_NAME,
-} from '../models/list-section';
+import MarkupSection, { DEFAULT_TAG_NAME as DEFAULT_MARKUP_SECTION_TAG_NAME } from '../models/markup-section';
+import ListSection, { DEFAULT_TAG_NAME as DEFAULT_LIST_SECTION_TAG_NAME } from '../models/list-section';
 import assert from '../utils/assert';
 
 function cacheKey (tagName, attributes) {

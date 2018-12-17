@@ -4,6 +4,7 @@
   "description": "A toolkit for building WYSIWYG editors with Mobiledoc",
   "repository": "https://github.com/bustle/mobiledoc-kit",
   "scripts": {
+    "build": "rollup --config",
     "commit": "git-cz",
     "lint": "eslint --ext .js --ignore-path .gitignore --fix ."
   },
@@ -26,11 +27,16 @@
     "Matthew Beale <matt.beale@madhatted.com> (http://madhatted.com/)"
   ],
   "license": "MIT",
+  "main": "lib/mobiledoc-kit.js",
+  "module": "lib/mobiledoc-kit.es.js",
+  "umd": "dist/mobiledoc-kit.js",
   "dependencies": {
     "mobiledoc-dom-renderer": "0.6.5",
     "mobiledoc-text-renderer": "0.3.2"
   },
   "devDependencies": {
+    "@babel/core": "7.2.2",
+    "@babel/preset-env": "7.2.0",
     "babel-eslint": "10.0.1",
     "commitizen": "3.0.5",
     "cz-conventional-changelog": "2.1.0",
@@ -39,6 +45,10 @@
     "eslint-plugin-import": "2.14.0",
     "eslint-plugin-node": "8.0.0",
     "eslint-plugin-promise": "4.0.1",
-    "eslint-plugin-standard": "4.0.0"
+    "eslint-plugin-standard": "4.0.0",
+    "rollup": "0.68.0",
+    "rollup-plugin-babel": "4.1.0",
+    "rollup-plugin-commonjs": "9.2.0",
+    "rollup-plugin-node-resolve": "4.0.0"
   }
 }
